@@ -13,8 +13,8 @@
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "express-validator": "^7.0.1",
-    "sequelize": "^6.32.1",
-    "sqlite3": "^5.1.6"
+    "sequelize": "^6.37.8",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
