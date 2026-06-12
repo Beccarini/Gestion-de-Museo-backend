@@ -12,9 +12,9 @@ const sequelize = new Sequelize({
   logging: false
 });
 
-const Integrante = require('./integrante')(sequelize);  
-const Registro = require('./registro')(sequelize); 
-
+const Integrante = require('./integrante')(sequelize);
+const Registro = require('./registro')(sequelize);
+const Item = require('./item')(sequelize);
 Integrante.hasMany(Registro, { foreignKey: 'integranteId', as: 'registros' });
 Registro.belongsTo(Integrante, { foreignKey: 'integranteId', as: 'integrante' });
 
