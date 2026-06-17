@@ -1,27 +1,21 @@
 const { DataTypes } = require('sequelize');
-
 module.exports = (sequelize) => {
-  return sequelize.define('Registro', {
+  return sequelize.define('Item', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    fecha: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW 
-    },
-    esAsistencia: {
-      type: DataTypes.BOOLEAN,
+    cantidad: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
-    esApertura: {
-      type: DataTypes.BOOLEAN,
+    estado: {
+      type: DataTypes.STRING,
       allowNull: false
     }
   }, {
     timestamps: true, 
-    tableName: 'registros'
+    tableName: 'item'
   });
 };
