@@ -3,10 +3,7 @@ const { body, param, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
 const { Integrante, Registro } = require('../models');
 const CARRERAS_VALIDAS = require('../constants/carreras');
-
-
 const router = express.Router();
-
 const validateIntegranteData = [
     body('nombre')
         .trim()
@@ -18,7 +15,7 @@ const validateIntegranteData = [
         .optional({ nullable: true })
         .trim(),
     body('carrera')
-        .optional({ nullable: true }) // Soporta que sea null si es personal externo
+        .optional({ nullable: true })
         .isIn(CARRERAS_VALIDAS)
         .withMessage(`La carrera no es válida. Opciones: ${CARRERAS_VALIDAS.join(', ')}`),
     body('esActivo')
@@ -27,12 +24,11 @@ const validateIntegranteData = [
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
     }
-    next();
-  }
 ];
-
 const getAllIntegrantes = async (req, res) => {
     try {
         const { nombre, carrera } = req.query;
@@ -40,23 +36,21 @@ const getAllIntegrantes = async (req, res) => {
         if (nombre) {
             integrantesWhere.nombre = {
                 [Op.like]: `%${nombre}%`
-        };
+            };
         }
         if (carrera) {
             integrantesWhere.carrera = carrera;
         }
-
         const integrantes = await Integrante.findAll({
-        where: integrantesWhere,
-        order: [['nombre', 'ASC']] 
+            where: integrantesWhere,
+            order: [['nombre', 'ASC']] 
         });
         res.status(200).json(integrantes);
     } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener los integrantes' });
-  }
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los integrantes' });
+    }
 };
-
 const addIntegrante = async (req, res) => {
     try{
         const nuevoIntegrante = await Integrante.create(req.body);
@@ -65,14 +59,11 @@ const addIntegrante = async (req, res) => {
         if (error.name === 'SequelizeUniqueConstraintError') {
             return res.status(400).json({ 
                 errors: [{ msg: 'Ya existe un integrante registrado con ese número de legajo.' }] 
-        });
-    }
-    return res.status(500).json({ error: 'Hubo un error interno en el servidor.' });
+            });
+        }
+        return res.status(500).json({ error: 'Hubo un error interno en el servidor.' });
     }
 }
-
 router.get('/', getAllIntegrantes);
 router.post('/', addIntegrante);
-
-
 module.exports = router;
