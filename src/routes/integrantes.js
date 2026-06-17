@@ -18,7 +18,7 @@ const validateIntegranteData = [
         .optional({ nullable: true })
         .trim(),
     body('carrera')
-        .optional({ nullable: true }) // Soporta que sea null si es personal externo
+        .optional({ nullable: true })
         .isIn(CARRERAS_VALIDAS)
         .withMessage(`La carrera no es válida. Opciones: ${CARRERAS_VALIDAS.join(', ')}`),
     body('esActivo')
@@ -132,10 +132,29 @@ const updateIntegrante = async (req, res) => {
     }
 }
 
+const deleteIntegrante = async (req, res) => {
+    try{
+        const { id } = req.params
+        const integrante = await Integrante.findByPk(id)
+
+        if(!integrante){
+            return res.status(404).json({message: 'Integrante no encontrado'})
+        }
+
+        await integrante.destroy()
+
+        res.status(204).send()
+    }catch(error){
+        console.error(error)
+        res.status(500).json({ error: 'Error al eliminar el integrante' });
+    }
+}
+
 router.get('/', getAllIntegrantes)
 router.get('/:id', validateIntegranteId, getIntegranteById)
 router.post('/', validateIntegranteData, addIntegrante)
 router.put('/:id', [validateIntegranteId, validateIntegranteData], updateIntegrante)
+router.delete('/:id', validateIntegranteId, deleteIntegrante)
 
 
 module.exports = router;
