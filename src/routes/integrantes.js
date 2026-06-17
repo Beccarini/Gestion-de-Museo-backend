@@ -70,6 +70,22 @@ const getAllIntegrantes = async (req, res) => {
   }
 };
 
+const getIntegranteById = async (req, res) => {
+    try{
+        const { id } = req.params
+        const integrante = await Integrante.findByPk(id) 
+
+        if(!integrante){
+            return res.status(404).json({message: 'Integrante no encontrado'})
+        }
+
+        res.status(200).json(integrante)
+    }catch(error){
+        console.error(error)
+        res.status(500).json({ error: 'Error al obtener el integrante' });
+    }
+}
+
 const addIntegrante = async (req, res) => {
     try{
         const nuevoIntegrante = await Integrante.create(req.body)
@@ -117,6 +133,7 @@ const updateIntegrante = async (req, res) => {
 }
 
 router.get('/', getAllIntegrantes)
+router.get('/:id', validateIntegranteId, getIntegranteById)
 router.post('/', validateIntegranteData, addIntegrante)
 router.put('/:id', [validateIntegranteId, validateIntegranteData], updateIntegrante)
 
