@@ -4,9 +4,9 @@ const CARRERAS_VALIDAS = require('../constants/carreras');
 module.exports = (sequelize) => {
   return sequelize.define('Integrante', {
     id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
     nombre: {
       type: DataTypes.STRING,
@@ -29,13 +29,14 @@ module.exports = (sequelize) => {
           args: [CARRERAS_VALIDAS],
           msg: "La carrera especificada no es válida en la UTN FRSFCO."
         }
-    },
-    esActivo: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true, 
-      allowNull: false
+      },
+      esActivo: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true, 
+        allowNull: false
+      }
     }
-  }}, {
+  }, {
     timestamps: true, 
     tableName: 'integrantes'
   });

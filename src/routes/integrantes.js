@@ -6,7 +6,6 @@ const CARRERAS_VALIDAS = require('../constants/carreras')
 
 
 const router = express.Router();
-
 const validateIntegranteData = [
     body('nombre')
         .trim()
@@ -27,10 +26,10 @@ const validateIntegranteData = [
     (req, res, next) => {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() })
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
     }
-    next();
-  }
 ];
 
 const validateIntegranteId = [
@@ -54,15 +53,14 @@ const getAllIntegrantes = async (req, res) => {
         if (nombre) {
             integrantesWhere.nombre = {
                 [Op.like]: `%${nombre}%`
-        };
+            };
         }
         if (carrera) {
             integrantesWhere.carrera = carrera;
         }
-
         const integrantes = await Integrante.findAll({
-        where: integrantesWhere,
-        order: [['nombre', 'ASC']] 
+            where: integrantesWhere,
+            order: [['nombre', 'ASC']] 
         });
         res.status(200).json(integrantes)
     } catch (error) {
