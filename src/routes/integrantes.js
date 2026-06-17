@@ -154,7 +154,7 @@ const deleteIntegrante = async (req, res) => {
 router.get('/', getAllIntegrantes)
 router.get('/:id', validateIntegranteId, getIntegranteById)
 router.post('/', validateIntegranteData, addIntegrante)
-router.put('/:id', [validateIntegranteId, validateIntegranteData], updateIntegrante)
+router.put('/:id', ...validateIntegranteId, ...validateIntegranteData, updateIntegrante)
 router.delete('/:id', validateIntegranteId, deleteIntegrante)
 
 
