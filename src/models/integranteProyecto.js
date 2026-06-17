@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
         integranteId: {
             type: DataTypes.UUID,
             allowNull: false,
-            reference: {
+            references: {
                 model: 'integrantes',
                 key: 'id'
             }
@@ -18,7 +18,7 @@ module.exports = (sequelize) => {
         proyectoId: {
             type: DataTypes.UUID,
             allowNull: false,
-            reference: {
+            references: {
                 model: 'proyectos',
                 key: 'id'
             }
