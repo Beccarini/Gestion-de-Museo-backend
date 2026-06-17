@@ -30,7 +30,7 @@ Integrante.belongsToMany(Proyecto, {
 });
 Proyecto.belongsToMany(Integrante, {
   through: IntegranteProyecto,
-  foreighKey: 'proyectoId',
+  foreignKey: 'proyectoId',
   otherKey: 'integranteId',
   as: 'integrantes'
 });
