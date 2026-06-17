@@ -36,7 +36,8 @@ const validateIntegranteData = [
 const validateIntegranteId = [
     param('id')
         .trim()
-        .notEmpty().withMessage('El ID del integrante es obligatorio en la URL'),
+        .notEmpty().withMessage('El ID del integrante es obligatorio en la URL')
+        .isUUID(4).withMessage('El formato del ID no es válido'),
     (req, res, next) => {
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
