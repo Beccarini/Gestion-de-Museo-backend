@@ -113,6 +113,12 @@ const getPermisosByIntegrante = async (req, res) => {
                 through: { attributes: [] }
             }]
         });
+
+        if (!integrante) {
+            return res.status(404).json({ message: 'Integrante no encontrado'});
+        }
+
+        res.status(200).json(integrante.Proyectos);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener permisos del integrante'});
