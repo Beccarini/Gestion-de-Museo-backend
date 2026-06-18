@@ -118,7 +118,7 @@ const getPermisosByIntegrante = async (req, res) => {
             return res.status(404).json({ message: 'Integrante no encontrado'});
         }
 
-        res.status(200).json(integrante.Proyectos);
+        res.status(200).json(integrante.Permisos);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener permisos del integrante'});
@@ -179,7 +179,7 @@ const deleteIntegrante = async (req, res) => {
         if(!integrante){
             return res.status(404).json({message: 'Integrante no encontrado'})
         }
-
+        
         await integrante.destroy()
 
         res.status(204).send()
