@@ -3,6 +3,7 @@ const { body, param, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
 const {Recurso, Cambio, Item}=require('../models');
 const router = express.Router();
+const ESTADO_RECURSOS=require('../constants/estadosRecurso');
 const validateDataItem=[
     body('cantidad')
         .isInt({min: 1}).withMessage('La cantidad no puede ser menor a 1'),
@@ -16,5 +17,6 @@ const validateDataItem=[
         }
         next();
     }
-]
+];
+
 module.exports = router;

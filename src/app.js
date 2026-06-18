@@ -1,9 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const integrantesRouter = require('./routes/integrantes');
+<<<<<<< Updated upstream
 const recursosRouter = require('./routes/recursos');
 const registroRouter = require('./routes/registros')
 const { sequelize, Integrante, Registro, Recurso, Item, Cambio } = require('./models');
+=======
+const itemsRouter=require('./routes/items');
+const cambiosRouter=require('./routes/cambios');
+const recursosRouter=require('./routes/recursos');
+const { sequelize, Integrante, Recurso, Item, Cambio } = require('./models');
+>>>>>>> Stashed changes
 
 const app = express();
 
@@ -14,7 +21,12 @@ const PORT = 3000;
 
 app.use('/api/integrantes', integrantesRouter);
 app.use('/api/recursos', recursosRouter);
+<<<<<<< Updated upstream
 app.use ('/api/registros', registroRouter)
+=======
+app.use('/api/items', itemsRouter);
+app.use('/api/cambios', cambiosRouter);
+>>>>>>> Stashed changes
 
 const startServer = async () => {
   try {
