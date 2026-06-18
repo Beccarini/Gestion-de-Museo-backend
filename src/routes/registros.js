@@ -6,6 +6,10 @@ const { Integrante, Registro } = require('../models');
 const router = express.Router();
 
 const validateRegistroData = [
+    body('integranteId')
+        .trim()
+        .optional({ nullable: true })
+        .isUUID(4).withMessage('El formato del ID no es válido'),
     body('tokenLeido')
         .trim()
         .notEmpty().withMessage('El token es obligatorio')
@@ -31,7 +35,7 @@ const validateRegistroData = [
 const validateRegistroId = [
     param('id')
         .trim()
-        .optional({ nullable: true })
+        .notEmpty().withMessage('El ID del registro es obligatorio en la URL')
         .isUUID(4).withMessage('El formato del ID no es válido'),
     (req, res, next) => {
         const errors = validationResult(req);
@@ -47,6 +51,7 @@ const getAllRegistros = async (req, res) => {
     try {
         const { fechaInicio, fechaFin, esApertura, esAsistencia } = req.query;
         const registrosWhere = {};
+        
         if (fechaInicio && fechaFin) {
             const inicio = fechaInicio.includes('T') 
                 ? new Date(fechaInicio) 
@@ -96,7 +101,7 @@ const getAllRegistros = async (req, res) => {
 
 const addRegistro = async (req, res) => {
   try {
-    const { 
+    let { 
       integranteId,    
       tokenLeido, 
       fecha,
@@ -143,5 +148,6 @@ const addRegistro = async (req, res) => {
   }
 };
 
-
 router.get('/', getAllRegistros)
+router.post('/', validateRegistroData, addRegistro)
+
