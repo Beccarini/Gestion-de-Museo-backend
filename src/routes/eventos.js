@@ -1,7 +1,7 @@
 const express = require('express')
 const { body, param, query, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
-const { Evento } = require('../models');
+const { Evento, Registro } = require('../models');
 
 const router = express.Router();
 
@@ -200,10 +200,39 @@ const updateEvento = async (req, res) => {
     }
 };
 
+const deleteEvento = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const evento = await Evento.findByPk(id);
+        if (!evento) {
+            return res.status(404).json({ error: 'Evento no encontrado' });
+        }
+
+        const tieneRegistros = await Registro.findOne({
+            where: { eventoId: id }
+        });
+
+        if (tieneRegistros) {
+            return res.status(400).json({ 
+                error: 'No se puede eliminar el evento porque tiene registros de asistencia asociados.' 
+            });
+        }
+
+        await evento.destroy();
+
+        res.status(204).send();
+    } catch (error) {
+        console.error('Error al eliminar el evento:', error);
+        res.status(500).json({ error: 'Error interno al eliminar el evento' });
+    }
+};
+
 router.get('/', validateEventoQuery, getAllEventos);
 router.get('/hoy',getEventosHoy);
 router.get('/:id',validateEventoId ,getEventoById);
 router.post('/', validateEventoData, addEvento)
 router.put('/:id', ...validateEventoId, ...validateEventoData, updateEvento)
+router.delete('/:id', ...validateEventoId, deleteEvento)
 
 module.exports = router;
