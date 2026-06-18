@@ -7,18 +7,33 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    integranteId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: 'integrantes', 
+          key: 'id'             
+        }
+    },
+    tokenLeido: {
+      type: DataTypes.STRING,
+      allowNull: false  
+    },
     fecha: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW 
+        type: DataTypes.DATE,
+        allowNull: false,
     },
     esAsistencia: {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
     esApertura: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
+        type: DataTypes.BOOLEAN,
+        allowNull: false
+    },
+    mensajeError: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     timestamps: true, 

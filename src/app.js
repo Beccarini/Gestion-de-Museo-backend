@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const integrantesRouter = require('./routes/integrantes');
-const recursosRouter=require('./routes/recursos');
-const { sequelize, Integrante, Recurso, Item, Cambio } = require('./models');
+const recursosRouter = require('./routes/recursos');
+const registroRouter = require('./routes/registros')
+const { sequelize, Integrante, Registro, Recurso, Item, Cambio } = require('./models');
 
 const app = express();
 
@@ -13,6 +14,7 @@ const PORT = 3000;
 
 app.use('/api/integrantes', integrantesRouter);
 app.use('/api/recursos', recursosRouter);
+app.use ('/api/registros', registroRouter)
 
 const startServer = async () => {
   try {
@@ -31,6 +33,23 @@ const startServer = async () => {
     } else {
       console.log('👤 El usuario de prueba ya existía en la base de datos.');
     }
+
+    const [registroPrueba, creadoRegistro] = await Registro.findOrCreate({
+      where: { tokenLeido: 'A1B2C3D4' },
+      defaults: {
+        integranteId: usuarioPrueba.id,
+        tokenLeido: 'A1B2C3D4',
+        fecha: new Date(),
+        esAsistencia: true,
+        esApertura: true,
+        mensajeError: null
+      }
+    });
+
+    if (creadoRegistro) {
+      console.log('🚪 Registro de auditoría inicial de prueba creado.');
+    }
+
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
