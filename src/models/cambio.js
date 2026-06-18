@@ -8,7 +8,8 @@ module.exports = (sequelize) => {
     },
     cantidad: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 0
     },
     fecha: {
       type: DataTypes.DATE,
@@ -16,7 +17,9 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.NOW
     },
     razon: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'Razón génerica'
     }
   }, {
     timestamps: true, 

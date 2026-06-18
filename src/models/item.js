@@ -8,11 +8,13 @@ module.exports = (sequelize) => {
     },
     cantidad: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 0
     },
     estado: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 'No seleccionado'
     }
   }, {
     timestamps: true, 

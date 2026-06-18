@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const integrantesRouter = require('./routes/integrantes');
-const recursosRouter=requiere('./routes/recursos');
+const recursosRouter=require('./routes/recursos');
 const { sequelize, Integrante, Recurso, Item, Cambio } = require('./models');
 
 const app = express();
