@@ -2,8 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const integrantesRouter = require('./routes/integrantes');
 const recursosRouter = require('./routes/recursos');
-const registroRouter = require('./routes/registros')
-const { sequelize, Integrante, Registro, Recurso, Item, Cambio } = require('./models');
+const registroRouter = require('./routes/registros');
+const permisosRouter = require('./routes/permisos');
+
+const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Permiso } = require('./models');
 
 const app = express();
 
@@ -15,6 +17,7 @@ const PORT = 3000;
 app.use('/api/integrantes', integrantesRouter);
 app.use('/api/recursos', recursosRouter);
 app.use ('/api/registros', registroRouter)
+app.use('/api/permisos', permisosRouter);
 
 const startServer = async () => {
   try {
@@ -48,6 +51,20 @@ const startServer = async () => {
 
     if (creadoRegistro) {
       console.log('🚪 Registro de auditoría inicial de prueba creado.');
+    }
+
+    const [permisoPrueba, creadoPermiso] = await Permiso.findOrCreate({
+      where: { descripcion: 'Turno Mañana Estándar' },
+      defaults: {
+        descripcion: 'Turno Mañana Estándar',
+        diasSemana: ['Lunes', 'Miércoles', 'Viernes'], // Array de ejemplo
+        horaInicio: '08:00',
+        horaFin: '12:30'
+      }
+    });
+
+    if (creadoPermiso) {
+      console.log('🔑 Nivel de acceso de prueba creado con éxito.');
     }
 
     app.listen(PORT, () => {
