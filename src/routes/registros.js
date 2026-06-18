@@ -7,8 +7,8 @@ const router = express.Router();
 
 const validateRegistroData = [
     body('integranteId')
+        .optional({ nullable: true, checkFalsy: true })
         .trim()
-        .optional({ nullable: true })
         .isUUID(4).withMessage('El formato del ID no es válido'),
     body('tokenLeido')
         .trim()
@@ -148,6 +148,8 @@ const addRegistro = async (req, res) => {
   }
 };
 
-router.get('/', getAllRegistros)
-router.post('/', validateRegistroData, addRegistro)
+router.get('/', getAllRegistros);
+router.post('/', validateRegistroData, addRegistro);
+
+module.exports = router;
 
