@@ -2,6 +2,7 @@ const express = require('express')
 const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
 const { Integrante, Registro } = require('../models');
+const integrante = require('../models/integrante');
 
 const router = express.Router();
 
@@ -99,6 +100,25 @@ const getAllRegistros = async (req, res) => {
   }
 };
 
+const getRegistroById = async (req, res) => {
+    try{
+        const { id } = req.params
+        const registro = await Registro.findByPk(id, {
+            include: [{ model: Integrante, as: 'integrante'}]
+        })
+
+        if(!registro){
+            return res.status(404).json({message: 'Registro no encontrado'})
+        }
+
+        res.status(200).json(registro)
+
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener el registro' });
+    }
+}
+
 const addRegistro = async (req, res) => {
   try {
     let { 
@@ -149,6 +169,7 @@ const addRegistro = async (req, res) => {
 };
 
 router.get('/', getAllRegistros);
+router.get('/:id', validateRegistroId, getRegistroById); 
 router.post('/', validateRegistroData, addRegistro);
 
 module.exports = router;
