@@ -2,7 +2,6 @@ const express = require('express')
 const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
 const { Integrante, Registro } = require('../models');
-const integrante = require('../models/integrante');
 
 const router = express.Router();
 
@@ -46,6 +45,20 @@ const validateRegistroId = [
         next();
     }
 ];
+
+const validateIntegranteId = [
+    param('integranteId')
+        .trim()
+        .notEmpty().withMessage('El ID del integrante es obligatorio')
+        .isUUID(4).withMessage('El formato del ID del integrante no es válido'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
+    }
+];  
 
 
 const getAllRegistros = async (req, res) => {
@@ -119,6 +132,30 @@ const getRegistroById = async (req, res) => {
     }
 }
 
+const getRegistrosByIntegrante = async (req, res) => {
+    try{
+        const { integranteId } = req.params
+
+        const integrante = await Integrante.findByPk(integranteId)
+        if(!integrante){
+            return res.status(404).json({ error: 'Integrante no encontrado' });
+        }
+
+        const registros = await Registro.findAll({
+            where: { integranteId },
+            order: [['fecha', 'DESC']],
+        });
+
+        res.status(200).json({
+            integrante,
+            registros
+        });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los registros del integrante' });
+    }
+}
+
 const addRegistro = async (req, res) => {
   try {
     let { 
@@ -168,9 +205,30 @@ const addRegistro = async (req, res) => {
   }
 };
 
+const deleteRegistro = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const registro = await Registro.findByPk(id);
+
+        if (!registro) {
+            return res.status(404).json({ error: 'Registro no encontrado' });
+        }
+
+        await registro.destroy();
+
+        res.status(200).json({ message: 'Registro eliminado con éxito' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al eliminar el registro' });
+    }
+};
+
 router.get('/', getAllRegistros);
 router.get('/:id', validateRegistroId, getRegistroById); 
+router.get('/integrante/:integranteId', validateIntegranteId, getRegistrosByIntegrante); 
 router.post('/', validateRegistroData, addRegistro);
+router.delete('/:id', validateRegistroId, deleteRegistro)
+
 
 module.exports = router;
-
