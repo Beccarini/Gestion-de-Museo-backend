@@ -191,6 +191,7 @@ const addRegistro = async (req, res) => {
 
     const nuevoRegistro = await Registro.create({
       integranteId,
+      eventoId,
       tokenLeido,
       fecha,
       esAsistencia,

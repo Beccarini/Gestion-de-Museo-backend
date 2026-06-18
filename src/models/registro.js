@@ -15,6 +15,14 @@ module.exports = (sequelize) => {
           key: 'id'             
         }
     },
+    eventoId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: 'Eventos',
+            key: 'id'
+        }
+    },
     tokenLeido: {
       type: DataTypes.STRING,
       allowNull: false  
