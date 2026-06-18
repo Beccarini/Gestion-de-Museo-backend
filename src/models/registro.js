@@ -3,9 +3,9 @@ const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   return sequelize.define('Registro', {
     id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
     integranteId: {
         type: DataTypes.UUID,
@@ -24,8 +24,8 @@ module.exports = (sequelize) => {
         allowNull: false,
     },
     esAsistencia: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     },
     esApertura: {
         type: DataTypes.BOOLEAN,
