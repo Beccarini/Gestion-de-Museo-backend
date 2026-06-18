@@ -1,7 +1,7 @@
 const express = require('express')
 const { body, param, query, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
-const { Evento } = require('../models')
+const { Evento } = require('../models');
 
 const router = express.Router();
 
@@ -158,7 +158,52 @@ const getEventosHoy = async (req, res) => {
     }
 };
 
+const addEvento = async (req, res) => {
+    try {
+        const { nombre, fechaInicio, fechaFin, esRecurrente } = req.body;
+
+        const nuevoEvento = await Evento.create({
+            nombre,
+            fechaInicio,
+            fechaFin,
+            esRecurrente: esRecurrente || false
+        });
+
+        res.status(201).json(nuevoEvento);
+    } catch (error) {
+        console.error('Error al crear el evento:', error);
+        res.status(500).json({ error: 'Error interno al crear el evento' });
+    }
+};
+
+const updateEvento = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nombre, fechaInicio, fechaFin, esRecurrente } = req.body;
+
+        const evento = await Evento.findByPk(id);
+        if (!evento) {
+            return res.status(404).json({ error: 'Evento no encontrado' });
+        }
+
+        await evento.update({
+            nombre,
+            fechaInicio,
+            fechaFin,
+            esRecurrente
+        }); 
+
+        res.status(200).json(evento);
+    } catch (error) {
+        console.error('Error al actualizar el evento:', error);
+        res.status(500).json({ error: 'Error interno al actualizar el evento' });
+    }
+};
+
 router.get('/', validateEventoQuery, getAllEventos);
 router.get('/hoy',getEventosHoy);
 router.get('/:id',validateEventoId ,getEventoById);
+router.post('/', validateEventoData, addEvento)
+router.put('/:id', ...validateEventoId, ...validateEventoData, updateEvento)
+
 module.exports = router;

@@ -5,7 +5,6 @@ const recursosRouter = require('./routes/recursos');
 const registrosRouter = require('./routes/registros')
 const eventosRouter = require('./routes/eventos')
 const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento } = require('./models');
-const evento = require('./models/evento');
 
 const app = express();
 
@@ -53,7 +52,7 @@ const startServer = async () => {
       where: { tokenLeido: 'A1B2C3D4' },
       defaults: {
         integranteId: usuarioPrueba.id,
-        evento: eventoPrueba.id,
+        eventoId: eventoPrueba.id,
         tokenLeido: 'A1B2C3D4',
         fecha: new Date(),
         esAsistencia: true,
