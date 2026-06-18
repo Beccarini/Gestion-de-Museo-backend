@@ -1,9 +1,8 @@
 const express = require('express')
 const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
-const { Integrante, Registro } = require('../models')
+const { Integrante, Registro, Proyecto, Permiso } = require('../models')
 const CARRERAS_VALIDAS = require('../constants/carreras')
-
 
 const router = express.Router();
 const validateIntegranteData = [
@@ -84,6 +83,41 @@ const getIntegranteById = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener el integrante' });
     }
 }
+const getProyectosByIntegrante = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const integrante = await Integrante.findByPk(id, {
+            include: [{
+                model: Proyecto,
+                through: { attributes: []}
+            }]
+        });
+
+        if (!integrante) {
+            return res.status(404).json({message: 'Integrante no encontrado' });
+        }
+
+        res.status(200).json(integrante.Proyectos);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener proyectos del integrante' });
+    }
+}
+
+const getPermisosByIntegrante = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const integrante = await Integrante.findByPk(id, {
+            include: [{
+                model: Permiso,
+                through: { attributes: [] }
+            }]
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener permisos del integrante'});
+    }
+}
 
 const addIntegrante = async (req, res) => {
     try{
@@ -151,6 +185,8 @@ const deleteIntegrante = async (req, res) => {
 
 router.get('/', getAllIntegrantes)
 router.get('/:id', validateIntegranteId, getIntegranteById)
+router.get('/:id/proyectos', validateIntegranteId, getProyectosByIntegrante);
+router.get('/:id/permisos', validateIntegranteId, getPermisosByIntegrante);
 router.post('/', validateIntegranteData, addIntegrante)
 router.put('/:id', ...validateIntegranteId, ...validateIntegranteData, updateIntegrante)
 router.delete('/:id', validateIntegranteId, deleteIntegrante)
