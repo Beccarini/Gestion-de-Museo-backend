@@ -174,12 +174,19 @@ const updateIntegrante = async (req, res) => {
 const deleteIntegrante = async (req, res) => {
     try{
         const { id } = req.params
-        const integrante = await Integrante.findByPk(id)
+        const integrante = await Integrante.findByPk(id, {
+            include: [{ model: Proyecto}]
+        });
 
         if(!integrante){
             return res.status(404).json({message: 'Integrante no encontrado'})
         }
-        
+
+        if (integrante.Proyectos && integrante.Proyectos.length > 0) {
+            return res.status(409).json({ 
+                error: 'No se puede eliminar el integrante porque está asociado a uno o más proyectos.' 
+            });
+        }
         await integrante.destroy()
 
         res.status(204).send()

@@ -37,7 +37,8 @@ Integrante.belongsToMany(Proyecto, {
   through: IntegranteProyecto,
   foreignKey: 'integranteId',
   otherKey: 'proyectoId',
-  as: 'proyectos'
+  as: 'proyectos',
+  onDelete: 'CASCADE'
 });
 Proyecto.belongsToMany(Integrante, {
   through: IntegranteProyecto,
@@ -50,7 +51,8 @@ Integrante.belongsToMany(Permiso, {
   through: IntegrantePermiso,
   foreignKey: 'integranteId',
   otherKey: 'permisoId',
-  as: 'permisos'
+  as: 'permisos',
+  onDelete: 'CASCADE'
 });
 Permiso.belongsToMany(Integrante, {
   through: IntegrantePermiso,
