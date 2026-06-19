@@ -97,7 +97,10 @@ const getProyectosByIntegrante = async (req, res) => {
             return res.status(404).json({message: 'Integrante no encontrado' });
         }
 
-        res.status(200).json(integrante.Proyectos);
+        res.status(200).json({
+            integrante,
+            proyectos: integrante.Proyectos
+    });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener proyectos del integrante' });
@@ -118,7 +121,10 @@ const getPermisosByIntegrante = async (req, res) => {
             return res.status(404).json({ message: 'Integrante no encontrado'});
         }
 
-        res.status(200).json(integrante.Permisos);
+        res.status(200).json({
+            integrante,
+            permiso: integrante.Permiso
+    });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener permisos del integrante'});
