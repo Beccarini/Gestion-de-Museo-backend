@@ -28,7 +28,7 @@ module.exports = (sequelize) => {
                 isDate: true
             }
         },
-        horarioRecurrenteId: {
+        plantillaId: {
             type: DataTypes.UUID,
             allowNull: true 
         }

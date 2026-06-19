@@ -1,23 +1,23 @@
 const cron = require('node-cron');
-const { HorarioRecurrente, Evento } = require('../models');
+const { Plantilla, Evento } = require('../models');
 
 const iniciarCronEventos = () => {
-    cron.schedule('0 0 * * *', async () => {
+    cron.schedule('0 0 * * *', async () => { //para probarlo sin importar la hora cambiar '0 0 * * *' a  '* * * * *'
         console.log('Revisando plantillas de horarios activas...');
         
         try {
-            const plantillas = await HorarioRecurrente.findAll({
+            const plantillas = await Plantilla.findAll({
                 where: { activo: true }
             });
-
+            
             const hoy = new Date(); 
-            const hoyString = hoy.toISOString().split('T')[0]; 
+            const hoyString = hoy.toLocaleDateString('fr-CA'); 
 
             for (const plantilla of plantillas) {
                 let proximaFecha = new Date();
                 
                 if (plantilla.ultimaProyeccion) {
-                    proximaFecha = new Date(plantilla.ultimaProyeccion);
+                    proximaFecha = new Date(plantilla.ultimaProyeccion + 'T00:00:00'); 
                     if (plantilla.frecuencia === 'semanal') proximaFecha.setDate(proximaFecha.getDate() + 7);
                     if (plantilla.frecuencia === 'quincenal') proximaFecha.setDate(proximaFecha.getDate() + 14);
                     if (plantilla.frecuencia === 'mensual') proximaFecha.setMonth(proximaFecha.getMonth() + 1);
@@ -27,10 +27,10 @@ const iniciarCronEventos = () => {
                     proximaFecha.setDate(proximaFecha.getDate() + (dif >= 0 ? dif : dif + 7));
                 }
 
-                const proximaFechaString = proximaFecha.toISOString().split('T')[0];
+                const proximaFechaString = proximaFecha.toLocaleDateString('fr-CA');
 
                 if (proximaFechaString === hoyString) {
-    
+
                     const [hInicio, mInicio] = plantilla.horaInicio.split(':');
                     const fechaInicioCompleta = new Date(proximaFecha);
                     fechaInicioCompleta.setHours(parseInt(hInicio), parseInt(mInicio), 0, 0);
@@ -43,20 +43,20 @@ const iniciarCronEventos = () => {
                         nombre: plantilla.nombre,
                         fechaInicio: fechaInicioCompleta,
                         fechaFin: fechaFinCompleta,
-                        horarioRecurrenteId: plantilla.id
+                        plantillaId: plantilla.id
                     });
 
                     await plantilla.update({
                         ultimaProyeccion: proximaFechaString
                     });
 
-                    console.log(`Generado: "${plantilla.nombre}" asociado a la plantilla ID: ${plantilla.id}`);
+                    console.log(`✨ Generado HOY: "${plantilla.nombre}" asociado a la plantilla ID: ${plantilla.id}`);
                 }
-            }
+            } 
         } catch (error) {
             console.error('Error en el generador de eventos:', error);
         }
-    });
+    }); 
 };
 
 module.exports = { iniciarCronEventos };

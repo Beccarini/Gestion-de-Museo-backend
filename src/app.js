@@ -4,7 +4,10 @@ const integrantesRouter = require('./routes/integrantes');
 const recursosRouter = require('./routes/recursos');
 const registrosRouter = require('./routes/registros')
 const eventosRouter = require('./routes/eventos')
-const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento } = require('./models');
+const plantillasRouter = require('./routes/plantillas'); 
+const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla } = require('./models');
+
+const { iniciarCronEventos } = require('./services/cronService');
 
 const app = express();
 
@@ -15,12 +18,17 @@ const PORT = 3000;
 
 app.use('/api/integrantes', integrantesRouter);
 app.use('/api/recursos', recursosRouter);
-app.use ('/api/registros', registrosRouter)
-app.use ('/api/eventos', eventosRouter)
+app.use('/api/registros', registrosRouter);
+app.use('/api/eventos', eventosRouter);
+app.use('/api/plantillas', plantillasRouter);
 
 const startServer = async () => {
   try {
     await sequelize.sync();
+
+    iniciarCronEventos();
+    console.log('⏰ Planificador de eventos diarios (Cron) activado con éxito.');
+
     const [usuarioPrueba, creado] = await Integrante.findOrCreate({
       where: { legajo: '19375' }, 
       defaults: {
@@ -41,7 +49,6 @@ const startServer = async () => {
         nombre: 'Taller de Robotica Educativa',
         fechaInicio: new Date(new Date().setHours(14, 0, 0, 0)),
         fechaFin: new Date(new Date().setHours(16, 0, 0, 0)),
-        esRecurrente: false
       }
     });
     if (creadoEvento) {
@@ -62,6 +69,22 @@ const startServer = async () => {
     });
     if (creadoRegistro) {
       console.log('🚪 Registro de auditoría inicial de prueba creado.');
+    }
+
+    const [plantillaPrueba, creadaPlantilla] = await Plantilla.findOrCreate({
+      where: { nombre: 'Diseño de Sistemas (Presencial)' },
+      defaults: {
+        nombre: 'Diseño de Sistemas (Presencial)',
+        diaSemana: new Date().getDay(),
+        horaInicio: '18:00',
+        horaFin: '22:00',
+        frecuencia: 'semanal',
+        activo: true,
+        ultimaProyeccion: null 
+      }
+    });
+    if (creadaPlantilla) {
+      console.log('📝 Plantilla de prueba para el Cron generada con éxito.');
     }
 
 

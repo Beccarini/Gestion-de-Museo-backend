@@ -22,10 +22,9 @@ const validateEventoData = [
             }
             return true;
         }),
-    
-    body('esRecurrente')
-        .optional()
-        .isBoolean().withMessage('esRecurrente debe ser un valor booleano (true o false)'),
+    body('plantillaId')
+        .optional({ nullable: true })
+        .isUUID(4).withMessage('El formato del plantillaId debe ser un UUID válido'),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -39,15 +38,9 @@ const validateEventoQuery = [
     query('fechaInicio')
         .optional()
         .isISO8601().withMessage('El parámetro fechaInicio debe ser una fecha válida'),
-    
     query('fechaFin')
         .optional()
         .isISO8601().withMessage('El parámetro fechaFin debe ser una fecha válida'),
-        
-    query('esRecurrente')
-        .optional()
-        .isBoolean().withMessage('El parámetro esRecurrente debe ser true o false'),
-
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -73,7 +66,7 @@ const validateEventoId = [
 
 const getAllEventos = async (req, res) => {
     try {
-        const { fechaInicio, fechaFin, esRecurrente } = req.query;
+        const { fechaInicio, fechaFin } = req.query;
         const eventosWhere = {};
 
         if (fechaInicio && fechaFin) {
@@ -100,10 +93,6 @@ const getAllEventos = async (req, res) => {
             eventosWhere.fechaInicio = {
                 [Op.between]: [inicioDia, finDia]
             };
-        }
-
-        if (esRecurrente !== undefined) {
-            eventosWhere.esRecurrente = esRecurrente === 'true';
         }
 
         const eventos = await Evento.findAll({
@@ -147,7 +136,7 @@ const getEventosHoy = async (req, res) => {
                     [Op.between]: [inicioDia, finDia]
                 }
             },
-            attributes: ['id', 'nombre', 'fechaInicio', 'fechaFin', 'esRecurrente'],
+            attributes: ['id', 'nombre', 'fechaInicio', 'fechaFin', 'plantillaId'],
             order: [['fechaInicio', 'ASC']]
         });
 
@@ -160,13 +149,13 @@ const getEventosHoy = async (req, res) => {
 
 const addEvento = async (req, res) => {
     try {
-        const { nombre, fechaInicio, fechaFin, esRecurrente } = req.body;
+        const { nombre, fechaInicio, fechaFin, plantillaId } = req.body;
 
         const nuevoEvento = await Evento.create({
             nombre,
             fechaInicio,
             fechaFin,
-            esRecurrente: esRecurrente || false
+            plantillaId: plantillaId || null     
         });
 
         res.status(201).json(nuevoEvento);
@@ -179,7 +168,7 @@ const addEvento = async (req, res) => {
 const updateEvento = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, fechaInicio, fechaFin, esRecurrente } = req.body;
+        const { nombre, fechaInicio, fechaFin, plantillaId } = req.body;
 
         const evento = await Evento.findByPk(id);
         if (!evento) {
@@ -190,7 +179,7 @@ const updateEvento = async (req, res) => {
             nombre,
             fechaInicio,
             fechaFin,
-            esRecurrente
+            plantillaId
         }); 
 
         res.status(200).json(evento);

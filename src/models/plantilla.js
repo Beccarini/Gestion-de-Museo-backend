@@ -1,7 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    const HorarioRecurrente = sequelize.define('HorarioRecurrente', {
+    const Plantilla = sequelize.define('Plantilla', {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
@@ -38,7 +38,10 @@ module.exports = (sequelize) => {
             allowNull: false,
             defaultValue: true 
         }
+    }, {
+        tableName: 'plantillas', 
+        timestamps: true        
     });
 
-    return HorarioRecurrente;
+    return Plantilla;
 };
