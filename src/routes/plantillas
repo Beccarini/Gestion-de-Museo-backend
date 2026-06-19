@@ -66,6 +66,47 @@ const getAllPlantillas = async (req, res) => {
     }
 };
 
+const getPlantillaById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const plantilla = await Plantilla.findByPk(id);
+
+        if (!plantilla) {
+            return res.status(404).json({ error: 'Plantilla de horarios no encontrada' });
+        }
+
+        res.status(200).json(plantilla);
+    } catch (error) {
+        console.error('Error al obtener la plantilla por ID:', error);
+        res.status(500).json({ error: 'Error interno al obtener la plantilla' });
+    }
+};
+
+const getEventosByPlantilla = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const plantilla = await Plantilla.findByPk(id);
+        if (!plantilla) {
+            return res.status(404).json({ error: 'Plantilla de horarios no encontrada' });
+        }
+
+        const { Evento } = require('../models'); 
+        const eventos = await Evento.findAll({
+            where: { plantillaId: id },
+            order: [['fechaInicio', 'DESC']] 
+        });
+
+        res.status(200).json({
+            plantilla,
+            eventos
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los eventos de la plantilla' });
+    }
+};
+
 const addPlantilla = async (req, res) => {
     try {
         const { nombre, diaSemana, horaInicio, horaFin, frecuencia, activo } = req.body;
@@ -134,6 +175,17 @@ const deletePlantilla = async (req, res) => {
             return res.status(404).json({ error: 'Plantilla de horarios no encontrada' });
         }
 
+        const { Evento } = require('../models'); 
+        const tieneEventos = await Evento.findOne({
+            where: { plantillaId: id }
+        });
+
+        if (tieneEventos) {
+            return res.status(400).json({ 
+                error: 'No se puede eliminar la plantilla porque tiene eventos asociados' 
+            });
+        }
+
         await plantilla.destroy();
         res.status(204).send();
     } catch (error) {
@@ -143,6 +195,8 @@ const deletePlantilla = async (req, res) => {
 };
 
 router.get('/', getAllPlantillas);
+router.get('/:id', ...validatePlantillaId, getPlantillaById); 
+router.get('/:id/eventos', validatePlantillaId, getEventosByPlantilla);
 router.post('/', validatePlantillaData, addPlantilla);
 router.put('/:id', ...validatePlantillaId, ...validatePlantillaData, updatePlantilla);
 router.patch('/:id/toggle', validatePlantillaId, togglePlantillaEstado); 
