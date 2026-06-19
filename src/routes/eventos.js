@@ -233,6 +233,6 @@ router.get('/hoy',getEventosHoy);
 router.get('/:id',validateEventoId ,getEventoById);
 router.post('/', validateEventoData, addEvento)
 router.put('/:id', ...validateEventoId, ...validateEventoData, updateEvento)
-router.delete('/:id', ...validateEventoId, deleteEvento)
+router.delete('/:id', validateEventoId, deleteEvento)
 
 module.exports = router;

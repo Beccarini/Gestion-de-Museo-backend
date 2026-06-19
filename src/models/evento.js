@@ -28,12 +28,12 @@ module.exports = (sequelize) => {
                 isDate: true
             }
         },
-        esRecurrente: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
+        horarioRecurrenteId: {
+            type: DataTypes.UUID,
+            allowNull: true 
         }
     }, {
-        tableName: 'Eventos',
+        tableName: 'eventos',
         timestamps: true
     });
 
