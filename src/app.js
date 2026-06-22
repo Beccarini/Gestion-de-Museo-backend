@@ -21,6 +21,7 @@ app.use('/api/recursos', recursosRouter);
 app.use('/api/registros', registrosRouter);
 app.use('/api/eventos', eventosRouter);
 app.use('/api/plantillas', plantillasRouter);
+app.use('/api/permisos', permisosRouter);
 
 const startServer = async () => {
   try {
@@ -87,6 +88,19 @@ const startServer = async () => {
       console.log('📝 Plantilla de prueba para el Cron generada con éxito.');
     }
 
+    const [permisoPrueba, creadoPermiso] = await Permiso.findOrCreate({
+      where: { descripcion: 'Turno Mañana Estándar' },
+      defaults: {
+        descripcion: 'Turno Mañana Estándar',
+        diasSemana: ['Lunes', 'Miércoles', 'Viernes'], // Array de ejemplo
+        horaInicio: '08:00',
+        horaFin: '12:30'
+      }
+    });
+
+    if (creadoPermiso) {
+      console.log('🔑 Nivel de acceso de prueba creado con éxito.');
+    }
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
