@@ -158,7 +158,7 @@ const deleteProyecto = async (req, res) => {
 
         res.status(204).send();
     } catch (error) {
-        console.error(error);
+        console.error(error);   
         res.status(500).json({ error: 'Error al eliminar el proyecto'});
     }
 };

@@ -20,6 +20,8 @@ const IntegrantePermiso = require('./integrantePermiso')(sequelize);
 const Item = require('./item')(sequelize);
 const Recurso = require('./recurso')(sequelize);
 const Cambio = require('./cambio')(sequelize);
+const Evento = require('./evento')(sequelize);
+const Plantilla = require('./plantilla')(sequelize);
 
 Integrante.hasMany(Registro, { foreignKey: 'integranteId', as: 'registros' });
 Registro.belongsTo(Integrante, { foreignKey: 'integranteId', as: 'integrante' });
@@ -61,6 +63,12 @@ Permiso.belongsToMany(Integrante, {
   as: 'integrantes'
 });
 
+Evento.hasMany(Registro, { foreignKey: 'eventoId', as: 'registros' });
+Registro.belongsTo(Evento, { foreignKey: 'eventoId', as: 'evento' });
+
+Plantilla.hasMany(Evento, { foreignKey: 'plantillaId', as: 'eventos' });
+Evento.belongsTo(Plantilla, { foreignKey: 'plantillaId', as: 'plantilla' });
+
 module.exports = {
   sequelize,
   Integrante,
@@ -71,5 +79,7 @@ module.exports = {
   Proyecto,
   Permiso,
   IntegranteProyecto,
-  IntegrantePermiso
+  IntegrantePermiso,
+  Evento,
+  Plantilla
 };
