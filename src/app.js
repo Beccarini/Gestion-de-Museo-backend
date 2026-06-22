@@ -5,7 +5,8 @@ const recursosRouter = require('./routes/recursos');
 const registrosRouter = require('./routes/registros')
 const eventosRouter = require('./routes/eventos')
 const plantillasRouter = require('./routes/plantillas'); 
-const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla } = require('./models');
+const permisosRouter = require('./routes/permisos');
+const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla, Permiso } = require('./models');
 
 const { iniciarCronEventos } = require('./services/cronService');
 
