@@ -1,7 +1,7 @@
 const express = require('express')
 const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
-const { Integrante, Registro } = require('../models');
+const { Integrante, Registro, Evento } = require('../models');
 
 const router = express.Router();
 
@@ -60,6 +60,19 @@ const validateIntegranteId = [
     }
 ];  
 
+const validateEventoId = [
+    param('eventoId')
+        .trim()
+        .notEmpty().withMessage('El ID del evento es obligatorio')
+        .isUUID(4).withMessage('El formato del ID del evento no es válido'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
+    }
+];  
 
 const getAllRegistros = async (req, res) => {
     try {
@@ -156,10 +169,35 @@ const getRegistrosByIntegrante = async (req, res) => {
     }
 }
 
+const getRegistrosByEvento = async (req, res) => {
+    try{
+        const { eventoId } = req.params
+
+        const evento = await Evento.findByPk(eventoId)
+        if(!evento){
+            return res.status(404).json({ error: 'Evento no encontrado' });
+        }
+
+        const registros = await Registro.findAll({
+            where: { eventoId },
+            order: [['fecha', 'DESC']],
+        });
+
+        res.status(200).json({
+            evento,
+            registros
+        });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los registros del evento' });
+    }
+}
+
 const addRegistro = async (req, res) => {
   try {
     let { 
-      integranteId,    
+      integranteId, 
+      eventoId,   
       tokenLeido, 
       fecha,
       esApertura,
@@ -191,6 +229,7 @@ const addRegistro = async (req, res) => {
 
     const nuevoRegistro = await Registro.create({
       integranteId,
+      eventoId,
       tokenLeido,
       fecha,
       esAsistencia,
@@ -227,6 +266,8 @@ const deleteRegistro = async (req, res) => {
 router.get('/', getAllRegistros);
 router.get('/:id', validateRegistroId, getRegistroById); 
 router.get('/integrante/:integranteId', validateIntegranteId, getRegistrosByIntegrante); 
+router.get('/evento/:eventoId', validateEventoId, getRegistrosByEvento); 
+
 router.post('/', validateRegistroData, addRegistro);
 router.delete('/:id', validateRegistroId, deleteRegistro)
 
