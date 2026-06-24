@@ -157,7 +157,7 @@ const togglePlantillaEstado = async (req, res) => {
         await plantilla.update({ activo: !plantilla.activo });
 
         res.status(200).json({ 
-            msg: `Plantilla de plantilla ${plantilla.activo ? 'activada' : 'desactivada'} con éxito`,
+            msg: `Estado de plantilla ${plantilla.activo ? 'activada' : 'desactivada'} con éxito`,
             plantilla 
         });
     } catch (error) {
@@ -181,7 +181,7 @@ const deletePlantilla = async (req, res) => {
         });
 
         if (tieneEventos) {
-            return res.status(400).json({ 
+            return res.status(409).json({ 
                 error: 'No se puede eliminar la plantilla porque tiene eventos asociados' 
             });
         }

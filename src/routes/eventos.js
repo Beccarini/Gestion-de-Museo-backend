@@ -203,7 +203,7 @@ const deleteEvento = async (req, res) => {
         });
 
         if (tieneRegistros) {
-            return res.status(400).json({ 
+            return res.status(409).json({ 
                 error: 'No se puede eliminar el evento porque tiene registros de asistencia asociados.' 
             });
         }
