@@ -8,6 +8,7 @@ const cambiosRouter=require('./routes/cambios');
 const eventosRouter = require('./routes/eventos')
 const plantillasRouter = require('./routes/plantillas'); 
 const permisosRouter = require('./routes/permisos');
+const proyectosRouter = require('./routes/proyectos');
 const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla, Permiso } = require('./models');
 
 const { iniciarCronEventos } = require('./services/cronService');
@@ -27,6 +28,7 @@ app.use('/api/cambios', cambiosRouter);
 app.use('/api/eventos', eventosRouter);
 app.use('/api/plantillas', plantillasRouter);
 app.use('/api/permisos', permisosRouter);
+app.use('/api/proyectos', proyectosRouter)
 
 const startServer = async () => {
   try {
