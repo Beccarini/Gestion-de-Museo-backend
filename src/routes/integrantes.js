@@ -193,6 +193,16 @@ const deleteIntegrante = async (req, res) => {
                 error: 'No se puede eliminar el integrante porque está asociado a uno o más proyectos.' 
             });
         }
+        const tieneRegistros = await Registro.findOne({
+            where: { integranteId: id }
+        });
+
+        if (tieneRegistros) {
+            return res.status(409).json({ 
+                error: 'No se puede eliminar el integrante porque tiene registros de asistencia asociados.' 
+            });
+        }
+
         await integrante.destroy()
 
         res.status(204).send()

@@ -181,7 +181,7 @@ const deletePlantilla = async (req, res) => {
         });
 
         if (tieneEventos) {
-            return res.status(400).json({ 
+            return res.status(409).json({ 
                 error: 'No se puede eliminar la plantilla porque tiene eventos asociados' 
             });
         }
