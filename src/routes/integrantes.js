@@ -212,6 +212,27 @@ const deleteIntegrante = async (req, res) => {
     }
 }
 
+const toggleIntegranteEstado = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const integrante = await Integrante.findByPk(id);
+        if (!integrante) {
+            return res.status(404).json({ error: 'Integrante no encontrada' });
+        }
+
+        await integrante.update({ esActivo: !integrante.esActivo });
+
+        res.status(200).json({ 
+            msg: `Estado de integrante ${integrante.esActivo ? 'activado' : 'desactivado'} con éxito`,
+            integrante 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al cambiar el estado del integrante' });
+    }
+};
+
 router.get('/', getAllIntegrantes)
 router.get('/:id', validateIntegranteId, getIntegranteById)
 router.get('/:id/proyectos', validateIntegranteId, getProyectosByIntegrante);
@@ -219,6 +240,7 @@ router.get('/:id/permisos', validateIntegranteId, getPermisosByIntegrante);
 router.post('/', validateIntegranteData, addIntegrante)
 router.put('/:id', ...validateIntegranteId, ...validateIntegranteData, updateIntegrante)
 router.delete('/:id', validateIntegranteId, deleteIntegrante)
+router.patch('/:id/toggle', validateIntegranteData, toggleIntegranteEstado)
 
 
 module.exports = router;

@@ -157,7 +157,7 @@ const togglePlantillaEstado = async (req, res) => {
         await plantilla.update({ activo: !plantilla.activo });
 
         res.status(200).json({ 
-            msg: `Plantilla de plantilla ${plantilla.activo ? 'activada' : 'desactivada'} con éxito`,
+            msg: `Estado de plantilla ${plantilla.activo ? 'activada' : 'desactivada'} con éxito`,
             plantilla 
         });
     } catch (error) {
