@@ -14,6 +14,21 @@ module.exports = (sequelize) => {
                 notEmpty: { msg: 'El nombre del evento es obligatorio' }
             }
         },
+        descripcion: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        tipo: {
+            type: DataTypes.ENUM('clase', 'reunion', 'visita', 'mantenimiento', 'otro'),
+            allowNull: false,
+            defaultValue: 'clase',
+            validate: {
+                isIn: {
+                    args: [['clase', 'reunion', 'visita', 'mantenimiento', 'otro']],
+                    msg: 'El tipo de evento no es válido'
+                }
+            }
+        },
         fechaInicio: {
             type: DataTypes.DATE, 
             allowNull: false,

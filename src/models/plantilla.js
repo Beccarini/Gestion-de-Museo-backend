@@ -12,6 +12,21 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING(100),
             allowNull: false
         },
+        descripcion: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        tipo: {
+            type: DataTypes.ENUM('clase', 'reunion', 'visita', 'mantenimiento', 'otro'),
+            allowNull: false,
+            defaultValue: 'clase',
+            validate: {
+                isIn: {
+                    args: [['clase', 'reunion', 'visita', 'mantenimiento', 'otro']],
+                    msg: 'El tipo de plantilla no es válido'
+                }
+            }
+        },
         diaSemana: {
             type: DataTypes.INTEGER, 
             allowNull: false
