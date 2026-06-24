@@ -30,11 +30,11 @@ module.exports = (sequelize) => {
           msg: "La carrera especificada no es válida en la UTN FRSFCO."
         }
       },
-      esActivo: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true, 
-        allowNull: false
-      }
+    },
+    esActivo: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true, 
+      allowNull: false
     }
   }, {
     timestamps: true, 
