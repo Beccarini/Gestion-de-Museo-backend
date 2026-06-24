@@ -2,7 +2,7 @@ const express = require('express')
 const { body, param, query, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
 const { Evento, Registro } = require('../models');
-
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 const router = express.Router();
 
 const validateEventoData = [
@@ -66,6 +66,7 @@ const validateEventoId = [
 
 const getAllEventos = async (req, res) => {
     try {
+        const {pagina, limite, offset } = getPaginacion(req, 10);
         const { fechaInicio, fechaFin } = req.query;
         const eventosWhere = {};
 
@@ -95,11 +96,15 @@ const getAllEventos = async (req, res) => {
             };
         }
 
-        const eventos = await Evento.findAll({
+        const data = await Evento.findAndCountAll({
             where: eventosWhere,
-            order: [['fechaInicio', 'ASC']] 
+            order: [['fechaInicio', 'ASC']],
+            limit: limite,
+            offset: offset
         });
-        res.status(200).json(eventos)
+
+        const response = formatearDatosPaginados(data, pagina, limite, 'eventos');
+        res.status(200).json(response)
     } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Error al obtener los eventos' })
