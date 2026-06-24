@@ -6,6 +6,10 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    recursoId:{
+      type: DataTypes.UUID,
+      allowNull: false
+    },
     cantidad: {
       type: DataTypes.INTEGER,
       allowNull: false,

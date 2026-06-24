@@ -1,5 +1,6 @@
 const path = require('path');
 const { Sequelize } = require('sequelize');
+const item = require('./item');
 
 const sqliteStorage = process.env.NODE_ENV === 'test'
   ? ':memory:'
@@ -34,6 +35,8 @@ Cambio.belongsTo(Recurso, { foreignKey: 'recursoId', as: 'recurso' });
 
 Item.hasOne(Cambio, { foreignKey: 'itemId', as: 'cambio' });
 Cambio.belongsTo(Item, { foreignKey: 'itemId', as: 'item' });
+Proyecto.hasMany(Item,{foreignKey: 'proyectoId', as:'items'});
+Item.belongsTo(Proyecto,{foreignKey: 'proyectoId', as:'proyecto'});
 
 Integrante.belongsToMany(Proyecto, {
   through: IntegranteProyecto,

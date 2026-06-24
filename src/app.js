@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const integrantesRouter = require('./routes/integrantes');
 const recursosRouter = require('./routes/recursos');
-const registrosRouter = require('./routes/registros')
+const registroRouter = require('./routes/registros')
+const itemsRouter=require('./routes/items');
+const cambiosRouter=require('./routes/cambios');
 const eventosRouter = require('./routes/eventos')
 const plantillasRouter = require('./routes/plantillas'); 
 const permisosRouter = require('./routes/permisos');
@@ -19,7 +21,9 @@ const PORT = 3000;
 
 app.use('/api/integrantes', integrantesRouter);
 app.use('/api/recursos', recursosRouter);
-app.use('/api/registros', registrosRouter);
+app.use ('/api/registros', registroRouter)
+app.use('/api/items', itemsRouter);
+app.use('/api/cambios', cambiosRouter);
 app.use('/api/eventos', eventosRouter);
 app.use('/api/plantillas', plantillasRouter);
 app.use('/api/permisos', permisosRouter);
