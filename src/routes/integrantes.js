@@ -181,18 +181,19 @@ const deleteIntegrante = async (req, res) => {
     try{
         const { id } = req.params
         const integrante = await Integrante.findByPk(id, {
-            include: [{ model: Proyecto}]
+            include: [{ model: Proyecto, as: 'proyectos' }]
         });
 
         if(!integrante){
             return res.status(404).json({message: 'Integrante no encontrado'})
         }
-
-        if (integrante.Proyectos && integrante.Proyectos.length > 0) {
+    
+        if (integrante.proyectos && integrante.proyectos.length > 0) {
             return res.status(409).json({ 
                 error: 'No se puede eliminar el integrante porque está asociado a uno o más proyectos.' 
             });
         }
+
         const tieneRegistros = await Registro.findOne({
             where: { integranteId: id }
         });
@@ -210,7 +211,8 @@ const deleteIntegrante = async (req, res) => {
         console.error(error)
         res.status(500).json({ error: 'Error al eliminar el integrante' });
     }
-}
+};
+
 
 const toggleIntegranteEstado = async (req, res) => {
     try {
@@ -240,7 +242,6 @@ router.get('/:id/permisos', validateIntegranteId, getPermisosByIntegrante);
 router.post('/', validateIntegranteData, addIntegrante)
 router.put('/:id', ...validateIntegranteId, ...validateIntegranteData, updateIntegrante)
 router.delete('/:id', validateIntegranteId, deleteIntegrante)
-router.patch('/:id/toggle', validateIntegranteData, toggleIntegranteEstado)
-
+router.patch('/:id/toggle', validateIntegranteId, toggleIntegranteEstado)
 
 module.exports = router;
