@@ -3,7 +3,7 @@ const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
 const { Integrante, Registro, Proyecto, Permiso } = require('../models')
 const CARRERAS_VALIDAS = require('../constants/carreras')
-
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 const router = express.Router();
 const validateIntegranteData = [
     body('nombre')
@@ -47,6 +47,7 @@ const validateIntegranteId = [
 
 const getAllIntegrantes = async (req, res) => {
     try {
+        const {pagina, limite, offset} = getPaginacion(req, 10); 
         const { nombre, carrera } = req.query
         const integrantesWhere = {}
         if (nombre) {
@@ -57,11 +58,14 @@ const getAllIntegrantes = async (req, res) => {
         if (carrera) {
             integrantesWhere.carrera = carrera;
         }
-        const integrantes = await Integrante.findAll({
+        const data = await Integrante.findAndCountAll({
             where: integrantesWhere,
-            order: [['nombre', 'ASC']] 
+            order: [['nombre', 'ASC']],
+            limit: limite,
+            offset: offset
         });
-        res.status(200).json(integrantes)
+        const response = formatearDatosPaginados(data, pagina, limite, 'integrantes');
+        res.status(200).json(response);
     } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Error al obtener los integrantes' })
