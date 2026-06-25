@@ -1,4 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
+const { TIPOS_EVENTO, TIPOS_EVENTO_MENSAJE } = require('../constants/tiposEvento');
 
 module.exports = (sequelize) => {
     const Plantilla = sequelize.define('Plantilla', {
@@ -17,13 +18,13 @@ module.exports = (sequelize) => {
             allowNull: true
         },
         tipo: {
-            type: DataTypes.ENUM('clase', 'reunion', 'visita', 'mantenimiento', 'otro'),
+            type: DataTypes.ENUM(...TIPOS_EVENTO),
             allowNull: false,
             defaultValue: 'clase',
             validate: {
                 isIn: {
                     args: [['clase', 'reunion', 'visita', 'mantenimiento', 'otro']],
-                    msg: 'El tipo de plantilla no es válido'
+                    msg: TIPOS_EVENTO_MENSAJE
                 }
             }
         },
