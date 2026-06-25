@@ -3,6 +3,7 @@ const { body, param, query, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
 const { Evento, Registro } = require('../models');
 const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
+const { TIPOS_EVENTO, TIPOS_EVENTO_MENSAJE } = require('../constants/tiposEvento');
 
 const router = express.Router();
 
@@ -11,6 +12,17 @@ const validateEventoData = [
         .trim()
         .notEmpty().withMessage('El nombre del evento es obligatorio')
         .isLength({ max: 100 }).withMessage('El nombre no puede superar los 100 caracteres'),
+    body('descripcion')
+        .optional({ nullable: true })
+        .isString().withMessage('La descripción debe ser un texto')
+        .trim()
+        .isLength({ max: 3000 }).withMessage('La descripción es demasiado larga (máximo 3000 caracteres)'),
+    body('tipo')
+        .optional()
+        .isString().withMessage('El tipo debe ser un texto')
+        .trim()
+        .isIn(TIPOS_EVENTO)
+        .withMessage(TIPOS_EVENTO_MENSAJE),
     body('fechaInicio')
         .notEmpty().withMessage('La fecha de inicio es obligatoria')
         .isISO8601().withMessage('La fecha de inicio debe tener un formato ISO8601 válido'),
@@ -175,10 +187,12 @@ const getEventosHoy = async (req, res) => {
 
 const addEvento = async (req, res) => {
     try {
-        const { nombre, fechaInicio, fechaFin, plantillaId } = req.body;
+        const { nombre, descripcion, tipo, fechaInicio, fechaFin, plantillaId } = req.body;
 
         const nuevoEvento = await Evento.create({
             nombre,
+            descripcion,
+            tipo,
             fechaInicio,
             fechaFin,
             plantillaId: plantillaId || null     
@@ -194,7 +208,7 @@ const addEvento = async (req, res) => {
 const updateEvento = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, fechaInicio, fechaFin, plantillaId } = req.body;
+        const { nombre, descripcion, tipo, fechaInicio, fechaFin, plantillaId, } = req.body;
 
         const evento = await Evento.findByPk(id);
         if (!evento) {
@@ -203,6 +217,8 @@ const updateEvento = async (req, res) => {
 
         await evento.update({
             nombre,
+            descripcion,
+            tipo,
             fechaInicio,
             fechaFin,
             plantillaId

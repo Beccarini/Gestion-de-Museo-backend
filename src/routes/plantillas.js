@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { Plantilla } = require('../models');
+const { TIPOS_EVENTO, TIPOS_EVENTO_MENSAJE } = require('../constants/tiposEvento');
 
 const router = express.Router();
 
@@ -9,6 +10,17 @@ const validatePlantillaData = [
         .trim()
         .notEmpty().withMessage('El nombre de la plantilla es obligatorio')
         .isLength({ max: 100 }).withMessage('El nombre no puede superar los 100 caracteres'),
+    body('descripcion')
+        .optional({ nullable: true })
+        .isString().withMessage('La descripción debe ser un texto')
+        .trim()
+        .isLength({ max: 3000 }).withMessage('La descripción es demasiado larga (máximo 3000 caracteres)'),
+    body('tipo')
+        .optional()
+        .isString().withMessage('El tipo debe ser un texto')
+        .trim()
+        .isIn(TIPOS_EVENTO)
+        .withMessage(TIPOS_EVENTO_MENSAJE),
     body('diaSemana')
         .notEmpty().withMessage('El día de la semana es obligatorio')
         .isInt({ min: 0, max: 6 }).withMessage('El día de la semana debe ser un número entre 0 (Domingo) y 6 (Sábado)'),
@@ -109,10 +121,12 @@ const getEventosByPlantilla = async (req, res) => {
 
 const addPlantilla = async (req, res) => {
     try {
-        const { nombre, diaSemana, horaInicio, horaFin, frecuencia, activo } = req.body;
+        const { nombre, descripcion, tipo, diaSemana, horaInicio, horaFin, frecuencia, activo } = req.body;
 
         const nuevoPlantilla = await Plantilla.create({
             nombre,
+            descripcion,
+            tipo,
             diaSemana,
             horaInicio,
             horaFin,
@@ -130,14 +144,14 @@ const addPlantilla = async (req, res) => {
 const updatePlantilla = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, diaSemana, horaInicio, horaFin, frecuencia, activo } = req.body;
+        const { nombre, descripcion, tipo, diaSemana, horaInicio, horaFin, frecuencia, activo } = req.body;
 
         const plantilla = await Plantilla.findByPk(id);
         if (!plantilla) {
             return res.status(404).json({ error: 'Plantilla de horarios no encontrada' });
         }
 
-        await plantilla.update({ nombre, diaSemana, horaInicio, horaFin, frecuencia, activo });
+        await plantilla.update({ nombre, descripcion, tipo, diaSemana, horaInicio, horaFin, frecuencia, activo });
         res.status(200).json(plantilla);
     } catch (error) {
         console.error(error);
