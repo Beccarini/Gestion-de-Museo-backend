@@ -3,6 +3,7 @@ const { body, param, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
 const {Recurso, Cambio, Item}=require('../models');
 const router = express.Router();
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 const validateDataRecurso=[
     body('nombre')
         .trim()
@@ -51,6 +52,7 @@ const getRecursoById=async(req,res)=>{
 };
 const getAllRecursos=async(req,res)=>{
     try{
+        const { pagina, limite, offset } = getPaginacion(req, 10);
         const {nombre, categoria, stock}=req.query;
         const whereRecurso={};
         if(nombre){
@@ -61,11 +63,14 @@ const getAllRecursos=async(req,res)=>{
         if(categoria){
             whereRecurso.categoria=categoria;
         };
-        const recursos = await Recurso.findAll({
+        const data = await Recurso.findAndCountAll({
             where: whereRecurso,
-            order: [['nombre', 'ASC']] 
+            order: [['nombre', 'ASC']],
+            limit: limite,
+            offset: offset
         });
-        res.status(200).json(recursos);
+        const response = formatearDatosPaginados(data, pagina, limite, 'recursos');
+        res.status(200).json(response);
     }catch(error){
         console.error(error);
         res.status(500).json({ error: 'Error al obtener los recursos'});
