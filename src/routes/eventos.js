@@ -2,6 +2,7 @@ const express = require('express')
 const { body, param, query, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
 const { Evento, Registro } = require('../models');
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 
 const router = express.Router();
 
@@ -121,7 +122,32 @@ const getEventoById = async (req, res) => {
         res.status(500).json({ error: 'Error interno al obtener el evento' });
     }
 };
+const getRegistrosByEvento = async (req, res) => {
+    try{
+        const { id } = req.params
 
+        const { pagina, limite, offset } = getPaginacion(req, 10);
+        const evento = await Evento.findByPk(id)
+        if(!evento){
+            return res.status(404).json({ error: 'Evento no encontrado' });
+        }
+
+        const data = await Registro.findAndCountAll({
+            where: { id },
+            order: [['fecha', 'DESC']],
+            limit: limite,
+            offset: offset
+        });
+        const registrosPaginados = formatearDatosPaginados(data, pagina, limite, 'registros');
+        res.status(200).json({
+            evento,
+            registrosPaginados
+        });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los registros del evento' });
+    }
+}
 const getEventosHoy = async (req, res) => {
     try {
         const inicioDia = new Date();
@@ -219,7 +245,8 @@ const deleteEvento = async (req, res) => {
 
 router.get('/', validateEventoQuery, getAllEventos);
 router.get('/hoy',getEventosHoy);
-router.get('/:id',validateEventoId ,getEventoById);
+router.get('/:id',validateEventoId, getEventoById);
+router.get('/:id/registros', validateEventoId, getRegistrosByEvento);
 router.post('/', validateEventoData, addEvento)
 router.put('/:id', ...validateEventoId, ...validateEventoData, updateEvento)
 router.delete('/:id', validateEventoId, deleteEvento)

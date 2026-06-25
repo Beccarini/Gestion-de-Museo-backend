@@ -2,6 +2,7 @@ const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
 const { Permiso } = require('../models');
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 
 const router = express.Router();
 
@@ -56,6 +57,7 @@ const validatePermisoId = [
 
 const getAllPermisos = async (req, res) => {
     try {
+        const { pagina, limite, offset } = getPaginacion(req, 10);
         const { diaSemana } = req.query;
         const permisosWhere = {};
         
@@ -65,12 +67,15 @@ const getAllPermisos = async (req, res) => {
             };
         }
 
-        const permisos = await Permiso.findAll({
+        const data = await Permiso.findAndCountAll({
             where: permisosWhere,
-            order: [['horaInicio', 'ASC']]
+            order: [['horaInicio', 'ASC']],
+            limit: limite,
+            offset: offset
         });
 
-        res.status(200).json(permisos);
+        const response = formatearDatosPaginados(data, pagina, limite, 'permisos');
+        res.status(200).json(response);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener los niveles de acceso' });

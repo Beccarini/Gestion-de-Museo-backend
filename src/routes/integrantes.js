@@ -3,7 +3,7 @@ const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
 const { Integrante, Registro, Proyecto, Permiso } = require('../models')
 const CARRERAS_VALIDAS = require('../constants/carreras')
-
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 const router = express.Router();
 const validateIntegranteData = [
     body('nombre')
@@ -47,6 +47,7 @@ const validateIntegranteId = [
 
 const getAllIntegrantes = async (req, res) => {
     try {
+        const {pagina, limite, offset} = getPaginacion(req, 10); 
         const { nombre, carrera } = req.query
         const integrantesWhere = {}
         if (nombre) {
@@ -57,11 +58,14 @@ const getAllIntegrantes = async (req, res) => {
         if (carrera) {
             integrantesWhere.carrera = carrera;
         }
-        const integrantes = await Integrante.findAll({
+        const data = await Integrante.findAndCountAll({
             where: integrantesWhere,
-            order: [['nombre', 'ASC']] 
+            order: [['nombre', 'ASC']],
+            limit: limite,
+            offset: offset
         });
-        res.status(200).json(integrantes)
+        const response = formatearDatosPaginados(data, pagina, limite, 'integrantes');
+        res.status(200).json(response);
     } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Error al obtener los integrantes' })
@@ -128,6 +132,33 @@ const getPermisosByIntegrante = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener permisos del integrante'});
+    }
+}
+const getRegistrosByIntegrante = async (req, res) => {
+    try{
+        const { id } = req.params
+
+        const {pagina, limite, offset } = getPaginacion(req, 10);
+
+        const integrante = await Integrante.findByPk(id)
+        if(!integrante){
+            return res.status(404).json({ error: 'Integrante no encontrado' });
+        }
+
+        const data = await Registro.findAndCountAll({
+            where: { integranteId: id},
+            order: [['fecha', 'DESC']],
+            limit: limite,
+            offset
+        });
+        const registrosPaginados = formatearDatosPaginados(data, pagina, limite, 'historial');
+        res.status(200).json({
+            integrante,
+            registrosPaginados
+        });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los registros del integrante' });
     }
 }
 
@@ -239,6 +270,7 @@ router.get('/', getAllIntegrantes)
 router.get('/:id', validateIntegranteId, getIntegranteById)
 router.get('/:id/proyectos', validateIntegranteId, getProyectosByIntegrante);
 router.get('/:id/permisos', validateIntegranteId, getPermisosByIntegrante);
+router.get('/:id/registros', validateIntegranteId, getRegistrosByIntegrante);
 router.post('/', validateIntegranteData, addIntegrante)
 router.put('/:id', ...validateIntegranteId, ...validateIntegranteData, updateIntegrante)
 router.delete('/:id', validateIntegranteId, deleteIntegrante)

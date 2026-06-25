@@ -1,8 +1,9 @@
 const express = require('express')
 const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
-const { Integrante, Registro, Proyecto } = require('../models')
-const ESTADOS_PROYECTO = require('..constants/estados/estadosProyecto');
+const { Proyecto } = require('../models')
+const ESTADOS_PROYECTO = require('../constants/estadosProyecto');
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 
 
 const router = express.Router();
@@ -29,8 +30,8 @@ const validateProyectoData = [
         body('estado')
             .trim()
             .notEmpty().withMessage('El estado no puede estar vacío si se proporciona')
-            .inIn(ESTADO_PROYECTO)
-            .withMessage(`El estado no es válido. Opciones: ${ESTADO_PROYECTO.join(', ')}`),
+            .isIn(ESTADOS_PROYECTO)
+            .withMessage(`El estado no es válido. Opciones: ${ESTADOS_PROYECTO.join(', ')}`),
         (req, res, next) => {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -59,6 +60,7 @@ const validateProyectoId = [
 
 const getAllProyectos = async (req, res) => {
     try {
+        const { pagina, limite, offset } = getPaginacion(req, 10);
         const { nombre, estado } = req.query;
         const proyectosWhere = {};
         
@@ -72,12 +74,15 @@ const getAllProyectos = async (req, res) => {
             proyectosWhere.estado = estado;
         }
 
-        const proyectos = await Proyecto.findAll({
+        const data = await Proyecto.findAndCountAll({
             where: proyectosWhere,
-            order: [['nombre', 'ASC']]
+            order: [['nombre', 'ASC']],
+            limit: limite,
+            offset: offset
         });
 
-        res.status(200).json(proyectos);
+        const response = formatearDatosPaginados(data, pagina, limite, 'proyectos');
+        res.status(200).json(response); 
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener los proyectos' });
@@ -170,3 +175,4 @@ router.post('/', validateProyectoData, addProyecto);
 router.put('/:id', ...validateProyectoId, ...validateProyectoData, updateProyecto);
 router.delete('/:id', validateProyectoId, deleteProyecto);
 
+module.exports = router;

@@ -2,6 +2,7 @@ const express = require('express')
 const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
 const { Integrante, Registro, Evento } = require('../models');
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 
 const router = express.Router();
 
@@ -76,6 +77,7 @@ const validateEventoId = [
 
 const getAllRegistros = async (req, res) => {
     try {
+        const { pagina, limite, offset} = getPaginacion(req, 10);
         const { fechaInicio, fechaFin, esApertura, esAsistencia } = req.query;
         const registrosWhere = {};
         
@@ -113,13 +115,15 @@ const getAllRegistros = async (req, res) => {
             registrosWhere.esAsistencia = esAsistencia === 'true';
         };
 
-        const registros = await Registro.findAll({
+        const data = await Registro.findAndCountAll({
             where: registrosWhere,
             order: [['fecha', 'DESC']], 
-            include: [{ model: Integrante, as: 'integrante' }]
+            include: [{ model: Integrante, as: 'integrante' }],
+            limit: limite,
+            offset: offset
         });
-
-        res.status(200).json(registros)
+        const response = formatearDatosPaginados(data, pagina, limite, 'registros');
+        res.status(200).json(response)
     } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Error al obtener los registros' })
@@ -145,53 +149,6 @@ const getRegistroById = async (req, res) => {
     }
 }
 
-const getRegistrosByIntegrante = async (req, res) => {
-    try{
-        const { integranteId } = req.params
-
-        const integrante = await Integrante.findByPk(integranteId)
-        if(!integrante){
-            return res.status(404).json({ error: 'Integrante no encontrado' });
-        }
-
-        const registros = await Registro.findAll({
-            where: { integranteId },
-            order: [['fecha', 'DESC']],
-        });
-
-        res.status(200).json({
-            integrante,
-            registros
-        });
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ error: 'Error al obtener los registros del integrante' });
-    }
-}
-
-const getRegistrosByEvento = async (req, res) => {
-    try{
-        const { eventoId } = req.params
-
-        const evento = await Evento.findByPk(eventoId)
-        if(!evento){
-            return res.status(404).json({ error: 'Evento no encontrado' });
-        }
-
-        const registros = await Registro.findAll({
-            where: { eventoId },
-            order: [['fecha', 'DESC']],
-        });
-
-        res.status(200).json({
-            evento,
-            registros
-        });
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ error: 'Error al obtener los registros del evento' });
-    }
-}
 
 const addRegistro = async (req, res) => {
   try {
@@ -262,12 +219,9 @@ const deleteRegistro = async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el registro' });
     }
 };
-
+ 
 router.get('/', getAllRegistros);
-router.get('/:id', validateRegistroId, getRegistroById); 
-router.get('/integrante/:integranteId', validateIntegranteId, getRegistrosByIntegrante); 
-router.get('/evento/:eventoId', validateEventoId, getRegistrosByEvento); 
-
+router.get('/:id', validateRegistroId, getRegistroById);
 router.post('/', validateRegistroData, addRegistro);
 router.delete('/:id', validateRegistroId, deleteRegistro)
 
