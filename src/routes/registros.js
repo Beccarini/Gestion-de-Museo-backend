@@ -149,29 +149,6 @@ const getRegistroById = async (req, res) => {
     }
 }
 
-const getRegistrosByEvento = async (req, res) => {
-    try{
-        const { eventoId } = req.params
-
-        const evento = await Evento.findByPk(eventoId)
-        if(!evento){
-            return res.status(404).json({ error: 'Evento no encontrado' });
-        }
-
-        const registros = await Registro.findAll({
-            where: { eventoId },
-            order: [['fecha', 'DESC']],
-        });
-
-        res.status(200).json({
-            evento,
-            registros
-        });
-    }catch(error){
-        console.error(error);
-        res.status(500).json({ error: 'Error al obtener los registros del evento' });
-    }
-}
 
 const addRegistro = async (req, res) => {
   try {
@@ -242,10 +219,9 @@ const deleteRegistro = async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el registro' });
     }
 };
-
+ 
 router.get('/', getAllRegistros);
-router.get('/:id', validateRegistroId, getRegistroById); 
-router.get('/evento/:eventoId', validateEventoId, getRegistrosByEvento); 
+router.get('/:id', validateRegistroId, getRegistroById);
 router.post('/', validateRegistroData, addRegistro);
 router.delete('/:id', validateRegistroId, deleteRegistro)
 
