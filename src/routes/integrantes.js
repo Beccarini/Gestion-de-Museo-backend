@@ -134,6 +134,33 @@ const getPermisosByIntegrante = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener permisos del integrante'});
     }
 }
+const getRegistrosByIntegrante = async (req, res) => {
+    try{
+        const { id } = req.params
+
+        const {pagina, limite, offset } = getPaginacion(req, 10);
+
+        const integrante = await Integrante.findByPk(id)
+        if(!integrante){
+            return res.status(404).json({ error: 'Integrante no encontrado' });
+        }
+
+        const data = await Registro.findAndCountAll({
+            where: { integranteId: id},
+            order: [['fecha', 'DESC']],
+            limit: limite,
+            offset
+        });
+        const registrosPaginados = formatearDatosPaginados(data, pagina, limite, 'historial');
+        res.status(200).json({
+            integrante,
+            registrosPaginados
+        });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los registros del integrante' });
+    }
+}
 
 const addIntegrante = async (req, res) => {
     try{
@@ -243,6 +270,7 @@ router.get('/', getAllIntegrantes)
 router.get('/:id', validateIntegranteId, getIntegranteById)
 router.get('/:id/proyectos', validateIntegranteId, getProyectosByIntegrante);
 router.get('/:id/permisos', validateIntegranteId, getPermisosByIntegrante);
+router.get('/:id/registros', validateIntegranteId, getRegistrosByIntegrante);
 router.post('/', validateIntegranteData, addIntegrante)
 router.put('/:id', ...validateIntegranteId, ...validateIntegranteData, updateIntegrante)
 router.delete('/:id', validateIntegranteId, deleteIntegrante)
