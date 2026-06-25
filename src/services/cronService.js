@@ -41,6 +41,8 @@ const iniciarCronEventos = () => {
 
                     await Evento.create({
                         nombre: plantilla.nombre,
+                        descripcion: plantilla.descripcion,
+                        tipo: plantilla.tipo,
                         fechaInicio: fechaInicioCompleta,
                         fechaFin: fechaFinCompleta,
                         plantillaId: plantilla.id
