@@ -10,7 +10,7 @@ const plantillasRouter = require('./routes/plantillas');
 const permisosRouter = require('./routes/permisos');
 const proyectosRouter = require('./routes/proyectos');
 const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla, Permiso } = require('./models');
-
+const authRouter = require('./routes/auth');
 const { iniciarCronEventos } = require('./services/cronService');
 
 const app = express();
@@ -20,6 +20,7 @@ app.use(express.json());
 
 const PORT = 3000;
 
+app.use('/api/auth', authRouter);
 app.use('/api/integrantes', integrantesRouter);
 app.use('/api/recursos', recursosRouter);
 app.use ('/api/registros', registroRouter)
