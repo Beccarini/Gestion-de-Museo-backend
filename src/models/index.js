@@ -85,5 +85,6 @@ module.exports = {
   IntegranteProyecto,
   IntegrantePermiso,
   Evento,
-  Plantilla
+  Plantilla,
+  Usuario
 };

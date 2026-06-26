@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const integrantesRouter = require('./routes/integrantes');
@@ -9,11 +10,12 @@ const eventosRouter = require('./routes/eventos')
 const plantillasRouter = require('./routes/plantillas'); 
 const permisosRouter = require('./routes/permisos');
 const proyectosRouter = require('./routes/proyectos');
-const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla, Permiso } = require('./models');
+const { sequelize, Usuario, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla, Permiso } = require('./models');
 const authRouter = require('./routes/auth');
 const { iniciarCronEventos } = require('./services/cronService');
 const authMiddleware = require('./middlewares/auth');
 const app = express();
+
 
 app.use(cors());
 app.use(express.json());
@@ -37,6 +39,20 @@ const startServer = async () => {
 
     iniciarCronEventos();
     console.log('⏰ Planificador de eventos diarios (Cron) activado con éxito.');
+
+    const [admin, adminCreado] = await Usuario.findOrCreate({
+      where: { email: 'admin@museo.com' },
+      defaults: {
+        password: 'passwordSegura123',
+        role: 'admin'
+      }
+    });
+
+    if (adminCreado) {
+      console.log('👤 Administrador inicial creado con éxito: admin@museo.com');
+    } else {
+      console.log('👤 Administrador ya existente en la base de datos.');
+    }
 
     const [usuarioPrueba, creado] = await Integrante.findOrCreate({
       where: { legajo: '19375' }, 
