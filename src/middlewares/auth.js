@@ -8,6 +8,12 @@ module.exports = (req,res,next) => {
         return res.status(401).json({ error: 'Acceso denegado. No hay token' });
     }
 
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        console.error('FATAL ERROR: JWT_SECRET no está definido');
+        return res.status(500).json({ error: 'Error de configuración en el servidor' });
+    }
+    
     try {
         const verified = jwt.verify(token, process.env.JWT_SECRET);
         req.user = verified;

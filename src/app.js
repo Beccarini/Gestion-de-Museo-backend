@@ -12,7 +12,7 @@ const proyectosRouter = require('./routes/proyectos');
 const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla, Permiso } = require('./models');
 const authRouter = require('./routes/auth');
 const { iniciarCronEventos } = require('./services/cronService');
-
+const authMiddleware = require('./middlewares/auth');
 const app = express();
 
 app.use(cors());
@@ -21,15 +21,15 @@ app.use(express.json());
 const PORT = 3000;
 
 app.use('/api/auth', authRouter);
-app.use('/api/integrantes', integrantesRouter);
-app.use('/api/recursos', recursosRouter);
-app.use ('/api/registros', registroRouter)
-app.use('/api/items', itemsRouter);
-app.use('/api/cambios', cambiosRouter);
-app.use('/api/eventos', eventosRouter);
-app.use('/api/plantillas', plantillasRouter);
-app.use('/api/permisos', permisosRouter);
-app.use('/api/proyectos', proyectosRouter)
+app.use('/api/integrantes', authMiddleware, integrantesRouter);
+app.use('/api/recursos', authMiddleware, recursosRouter);
+app.use ('/api/registros', authMiddleware, registroRouter)
+app.use('/api/items', authMiddleware, itemsRouter);
+app.use('/api/cambios', authMiddleware, cambiosRouter);
+app.use('/api/eventos', authMiddleware, eventosRouter);
+app.use('/api/plantillas', authMiddleware, plantillasRouter);
+app.use('/api/permisos', authMiddleware, permisosRouter);
+app.use('/api/proyectos', authMiddleware, proyectosRouter);
 
 const startServer = async () => {
   try {
