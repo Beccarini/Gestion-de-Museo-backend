@@ -23,6 +23,7 @@ const Recurso = require('./recurso')(sequelize);
 const Cambio = require('./cambio')(sequelize);
 const Evento = require('./evento')(sequelize);
 const Plantilla = require('./plantilla')(sequelize);
+const Usuario = require('./usuario')(sequelize);
 
 Integrante.hasMany(Registro, { foreignKey: 'integranteId', as: 'registros' });
 Registro.belongsTo(Integrante, { foreignKey: 'integranteId', as: 'integrante' });
@@ -84,5 +85,6 @@ module.exports = {
   IntegranteProyecto,
   IntegrantePermiso,
   Evento,
-  Plantilla
+  Plantilla,
+  Usuario
 };

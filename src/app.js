@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const integrantesRouter = require('./routes/integrantes');
@@ -9,26 +10,28 @@ const eventosRouter = require('./routes/eventos')
 const plantillasRouter = require('./routes/plantillas'); 
 const permisosRouter = require('./routes/permisos');
 const proyectosRouter = require('./routes/proyectos');
-const { sequelize, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla, Permiso } = require('./models');
-
+const { sequelize, Usuario, Integrante, Registro, Recurso, Item, Cambio, Evento, Plantilla, Permiso } = require('./models');
+const authRouter = require('./routes/auth');
 const { iniciarCronEventos } = require('./services/cronService');
-
+const authMiddleware = require('./middlewares/auth');
 const app = express();
+
 
 app.use(cors());
 app.use(express.json());
 
 const PORT = 3000;
 
-app.use('/api/integrantes', integrantesRouter);
-app.use('/api/recursos', recursosRouter);
-app.use ('/api/registros', registroRouter)
-app.use('/api/items', itemsRouter);
-app.use('/api/cambios', cambiosRouter);
-app.use('/api/eventos', eventosRouter);
-app.use('/api/plantillas', plantillasRouter);
-app.use('/api/permisos', permisosRouter);
-app.use('/api/proyectos', proyectosRouter)
+app.use('/api/auth', authRouter);
+app.use('/api/integrantes', authMiddleware, integrantesRouter);
+app.use('/api/recursos', authMiddleware, recursosRouter);
+app.use ('/api/registros', authMiddleware, registroRouter)
+app.use('/api/items', authMiddleware, itemsRouter);
+app.use('/api/cambios', authMiddleware, cambiosRouter);
+app.use('/api/eventos', authMiddleware, eventosRouter);
+app.use('/api/plantillas', authMiddleware, plantillasRouter);
+app.use('/api/permisos', authMiddleware, permisosRouter);
+app.use('/api/proyectos', authMiddleware, proyectosRouter);
 
 const startServer = async () => {
   try {
@@ -36,6 +39,20 @@ const startServer = async () => {
 
     iniciarCronEventos();
     console.log('⏰ Planificador de eventos diarios (Cron) activado con éxito.');
+
+    const [admin, adminCreado] = await Usuario.findOrCreate({
+      where: { email: 'admin@museo.com' },
+      defaults: {
+        password: 'passwordSegura123',
+        role: 'admin'
+      }
+    });
+
+    if (adminCreado) {
+      console.log('👤 Administrador inicial creado con éxito: admin@museo.com');
+    } else {
+      console.log('👤 Administrador ya existente en la base de datos.');
+    }
 
     const [usuarioPrueba, creado] = await Integrante.findOrCreate({
       where: { legajo: '19375' }, 
