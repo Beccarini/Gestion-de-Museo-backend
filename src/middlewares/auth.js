@@ -15,7 +15,7 @@ module.exports = (req,res,next) => {
 
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-        console.error('FATAL ERROR: JWT_SECRET no está definido');
+        console.error('FATAL ERROR: JWT_SECRET no está definido en el archivo .env');
         return res.status(500).json({ error: 'Error de configuración en el servidor' });
     }
     
