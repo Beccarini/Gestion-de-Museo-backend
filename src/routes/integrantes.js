@@ -93,6 +93,7 @@ const getProyectosByIntegrante = async (req, res) => {
         const integrante = await Integrante.findByPk(id, {
             include: [{
                 model: Proyecto,
+                as: 'proyectos',
                 through: { attributes: []}
             }]
         });
@@ -117,6 +118,7 @@ const getPermisosByIntegrante = async (req, res) => {
         const integrante = await Integrante.findByPk(id, {
             include: [{
                 model: Permiso,
+                as: 'permisos',
                 through: { attributes: [] }
             }]
         });
