@@ -1,7 +1,7 @@
 const express = require('express')
 const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
-const { Integrante, Registro, Proyecto, Permiso } = require('../models')
+const { Integrante, Registro, Proyecto, Permiso, IntegranteProyecto, IntegrantePermiso } = require('../models')
 const CARRERAS_VALIDAS = require('../constants/carreras')
 const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 const router = express.Router();
@@ -112,6 +112,73 @@ const getProyectosByIntegrante = async (req, res) => {
     }
 }
 
+const asignarProyecto = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { proyectoId } = req.body;
+
+        if (!proyectoId) {
+            return res.status(400).json({ error: 'El campo proyectoId es obligatorio en el cuerpo de la solicitud' });
+        }
+
+        
+        const integrante = await Integrante.findByPk(id);
+        if (!integrante) {
+            return res.status(404).json({ error: 'Integrante no encontrado' });
+        }
+
+        
+        const proyecto = await Proyecto.findByPk(proyectoId);
+        if (!proyecto) {
+            return res.status(404).json({ error: 'Proyecto no encontrado' });
+        }
+
+        
+        const relacionExistente = await IntegranteProyecto.findOne({
+            where: { integranteId: id, proyectoId }
+        });
+
+        if (relacionExistente) {
+            return res.status(400).json({ error: 'El integrante ya está asignado a este proyecto' });
+        }
+
+        
+        await IntegranteProyecto.create({
+            integranteId: id,
+            proyectoId
+        });
+
+        res.status(201).json({ msg: 'Proyecto asignado con éxito al integrante' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error interno del servidor al asignar el proyecto' });
+    }
+};
+
+
+const desvincularProyecto = async (req, res) => {
+    try {
+        const { id, proyectoId } = req.params;
+
+        
+        const filasBorradas = await IntegranteProyecto.destroy({
+            where: {
+                integranteId: id,
+                proyectoId
+            }
+        });
+
+        if (filasBorradas === 0) {
+            return res.status(404).json({ error: 'No se encontró la asignación entre este integrante y proyecto' });
+        }
+
+        res.status(200).json({ msg: 'Proyecto desvinculado con éxito del integrante' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error interno del servidor al desvincular el proyecto' });
+    }
+};
+
 const getPermisosByIntegrante = async (req, res) => {
     try {
         const { id } = req.params;
@@ -136,6 +203,72 @@ const getPermisosByIntegrante = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener permisos del integrante'});
     }
 }
+const asignarPermiso = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { permisoId } = req.body;
+
+        if (!permisoId) {
+            return res.status(400).json({ error: 'El campo permisoId es obligatorio en el cuerpo de la solicitud' });
+        }
+
+        
+        const integrante = await Integrante.findByPk(id);
+        if (!integrante) {
+            return res.status(404).json({ error: 'Integrante no encontrado' });
+        }
+
+       
+        const permiso = await Permiso.findByPk(permisoId);
+        if (!permiso) {
+            return res.status(404).json({ error: 'Perfil de permiso no encontrado' });
+        }
+
+        
+        const relacionExistente = await IntegrantePermiso.findOne({
+            where: { integranteId: id, permisoId }
+        });
+
+        if (relacionExistente) {
+            return res.status(400).json({ error: 'Este perfil de acceso ya está asignado al integrante' });
+        }
+
+        
+        await IntegrantePermiso.create({
+            integranteId: id,
+            permisoId
+        });
+
+        res.status(201).json({ msg: 'Perfil de acceso asignado con éxito al integrante' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error interno del servidor al asignar el permiso' });
+    }
+};
+
+
+const desvincularPermiso = async (req, res) => {
+    try {
+        const { id, permisoId } = req.params;
+
+        const filasBorradas = await IntegrantePermiso.destroy({
+            where: {
+                integranteId: id,
+                permisoId
+            }
+        });
+
+        if (filasBorradas === 0) {
+            return res.status(404).json({ error: 'No se encontró esta asignación de regla de acceso para el integrante' });
+        }
+
+        res.status(200).json({ msg: 'Perfil de acceso revocado con éxito del integrante' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error interno del servidor al desvincular el permiso' });
+    }
+};
+
 const getRegistrosByIntegrante = async (req, res) => {
     try{
         const { id } = req.params
@@ -268,10 +401,17 @@ const toggleIntegranteEstado = async (req, res) => {
     }
 };
 
+
+
+
 router.get('/', getAllIntegrantes)
 router.get('/:id', validateIntegranteId, getIntegranteById)
 router.get('/:id/proyectos', validateIntegranteId, getProyectosByIntegrante);
+router.post('/:id/proyectos', validateIntegranteId, asignarProyecto);
+router.delete('/:id/proyectos/:proyectoId', validateIntegranteId, desvincularProyecto);
 router.get('/:id/permisos', validateIntegranteId, getPermisosByIntegrante);
+router.post('/:id/permisos', validateIntegranteId, asignarPermiso);
+router.delete('/:id/permisos/:permisoId', validateIntegranteId, desvincularPermiso);
 router.get('/:id/registros', validateIntegranteId, getRegistrosByIntegrante);
 router.post('/', validateIntegranteData, addIntegrante)
 router.put('/:id', ...validateIntegranteId, ...validateIntegranteData, updateIntegrante)
