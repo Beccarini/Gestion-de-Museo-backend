@@ -2,9 +2,6 @@ const jwt = require('jsonwebtoken');
 
 module.exports = (req,res,next) => {
 
-    if (process.env.NODE_ENV === 'development') {
-        return next();
-    }
     
     const authHeader = req.header('Authorization');
     const token = authHeader && authHeader.split(' ')[1];
