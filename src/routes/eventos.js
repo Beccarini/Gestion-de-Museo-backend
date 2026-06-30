@@ -145,7 +145,7 @@ const getRegistrosByEvento = async (req, res) => {
         }
 
         const data = await Registro.findAndCountAll({
-            where: { id },
+            where: { eventoId: id },
             order: [['fecha', 'DESC']],
             limit: limite,
             offset: offset
