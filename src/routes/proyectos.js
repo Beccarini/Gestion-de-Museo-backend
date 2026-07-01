@@ -1,7 +1,7 @@
 const express = require('express')
 const { body, param, validationResult } = require('express-validator')
 const { Op } = require('sequelize')
-const { Proyecto } = require('../models')
+const { Proyecto, Integrante } = require('../models')
 const ESTADOS_PROYECTO = require('../constants/estadosProyecto');
 const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 
@@ -105,6 +105,32 @@ const getProyectoById = async (req, res) => {
     }
 };
 
+const getIntegrantesByProyecto = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Verificamos que el proyecto exista y traemos sus relaciones
+        const proyecto = await Proyecto.findByPk(id, {
+            include: [
+                {
+                    model: Integrante,
+                    as: 'integrantes',
+                    attributes: ['id', 'nombre', 'legajo', 'carrera'],
+                }
+            ]
+        });
+
+        if (!proyecto) {
+            return res.status(404).json({ message: 'Proyecto no encontrado' });
+        }
+
+        res.status(200).json(proyecto.integrantes);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener los integrantes del proyecto' });
+    }
+};
+
 const addProyecto = async (req, res) => {
     try {
         const { nombre, descripcion, fechaInicio, fechaFin, estado } = req.body;
@@ -171,6 +197,7 @@ const deleteProyecto = async (req, res) => {
 
 router.get('/', getAllProyectos);
 router.get('/:id', validateProyectoId, getProyectoById);
+router.get('/:id/integrantes', validateProyectoId, getIntegrantesByProyecto);
 router.post('/', validateProyectoData, addProyecto);
 router.put('/:id', ...validateProyectoId, ...validateProyectoData, updateProyecto);
 router.delete('/:id', validateProyectoId, deleteProyecto);
