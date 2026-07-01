@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { Op } = require('sequelize');
-const { Permiso } = require('../models');
+const { Permiso, Integrante } = require('../models');
 const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion');
 
 const router = express.Router();
@@ -98,6 +98,31 @@ const getPermisoById = async (req, res) => {
     }
 };
 
+const getIntegrantesByPermiso = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const permiso = await Permiso.findByPk(id);
+        if (!permiso) {
+            return res.status(404).json({ message: 'Nivel de acceso no encontrado' });
+        }
+
+        const integrantes = await Integrante.findAll({
+            include: [{
+                model: Permiso,
+                as: 'permisos',
+                where: { id: id },
+                through: { attributes: [] } 
+            }]
+        });
+
+        res.status(200).json({ integrantes });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error interno del servidor al obtener los integrantes' });
+    }
+};
+
 const addPermiso = async (req, res) => {
     try {
         const { descripcion, diasSemana, horaInicio, horaFin } = req.body;
@@ -161,6 +186,7 @@ const deletePermiso = async (req, res) => {
 
 router.get('/', getAllPermisos);
 router.get('/:id', validatePermisoId, getPermisoById);
+router.get('/:id/integrantes', validatePermisoId, getIntegrantesByPermiso);
 router.post('/', validatePermisoData, addPermiso);
 router.put('/:id', ...validatePermisoId, ...validatePermisoData, updatePermiso);
 router.delete('/:id', validatePermisoId, deletePermiso);
