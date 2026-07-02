@@ -1,0 +1,20 @@
+meta {
+  name: Toggle integrantes integrante toggle
+  type: http
+  seq: 9
+}
+
+patch {
+  url: {{baseUrl}}/integrantes/{{integranteId}}/toggle
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

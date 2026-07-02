@@ -1,0 +1,40 @@
+meta {
+  name: Get permisos all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/permisos
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+script:post-response {
+  const data = res.getBody();
+  
+  if (data && data.permisos && data.permisos.length > 0) {
+      bru.setEnvVar("permisoId", data.permisos[0].id);
+      console.log("✅ permisoId guardado:", data.permisos[0].id);
+      
+  } else if (data && data.data && data.data.length > 0) {
+      bru.setEnvVar("permisoId", data.data[0].id);
+      console.log("✅ permisoId guardado (desde data):", data.data[0].id);
+      
+  } else if (Array.isArray(data) && data.length > 0) {
+      bru.setEnvVar("permisoId", data[0].id);
+      console.log("✅ permisoId guardado (desde Array puro):", data[0].id);
+  } else {
+      console.log("❌ No se encontró ningún permiso.");
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

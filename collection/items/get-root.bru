@@ -1,0 +1,40 @@
+meta {
+  name: Get items all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/items
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+script:post-response {
+  const data = res.getBody();
+  
+  if (data && data.items && data.items.length > 0) {
+      bru.setEnvVar("itemId", data.items[0].id);
+      console.log("✅ itemId guardado:", data.items[0].id);
+      
+  } else if (data && data.data && data.data.length > 0) {
+      bru.setEnvVar("itemId", data.data[0].id);
+      console.log("✅ itemId guardado (desde data):", data.data[0].id);
+      
+  } else if (Array.isArray(data) && data.length > 0) {
+      bru.setEnvVar("itemId", data[0].id);
+      console.log("✅ itemId guardado (desde Array puro):", data[0].id);
+  } else {
+      console.log("❌ No se encontró ningún item.");
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

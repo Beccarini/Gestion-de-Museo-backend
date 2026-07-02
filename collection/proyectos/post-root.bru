@@ -1,0 +1,40 @@
+meta {
+  name: Create proyectos proyectos
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/proyectos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Proyecto de prueba",
+    "descripcion": "Descripcion de proyecto",
+    "fechaInicio": "2026-07-01T00:00:00.000Z",
+    "fechaFin": "2026-12-01T00:00:00.000Z",
+    "estado": "activo"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("proyectoId", res.body.id);
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has id", function() {
+    expect(res.body).to.have.property('id');
+  });
+}

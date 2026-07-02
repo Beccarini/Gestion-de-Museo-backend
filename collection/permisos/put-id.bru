@@ -1,0 +1,30 @@
+meta {
+  name: Update permisos permiso
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/permisos/{{permisoId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "descripcion": "Permiso de acceso al laboratorio",
+    "diasSemana": "Lunes,Martes,Miercoles",
+    "horaInicio": "08:00",
+    "horaFin": "18:00"
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

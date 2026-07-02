@@ -1,0 +1,39 @@
+meta {
+  name: Create items items
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/items
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "recursoId": "{{recursoId}}",
+    "cantidad": 1,
+    "estado": "disponible",
+    "proyectoId": "{{proyectoId}}"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("itemId", res.body.id);
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has id", function() {
+    expect(res.body).to.have.property('id');
+  });
+}

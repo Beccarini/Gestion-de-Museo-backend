@@ -1,0 +1,23 @@
+meta {
+  name: Get proyectos proyecto integrantes
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/proyectos/{{proyectoId}}/integrantes
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("response is an array", function() {
+    expect(res.body).to.be.an('array');
+  });
+}

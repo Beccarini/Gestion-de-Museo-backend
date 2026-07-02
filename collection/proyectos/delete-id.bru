@@ -1,0 +1,20 @@
+meta {
+  name: Delete proyectos proyecto
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/proyectos/{{proyectoId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("status code is 200 or 204", function() {
+    expect([200, 204]).to.include(res.getStatus());
+  });
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Get items recursos recurso
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/items/recursos/{{recursoId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

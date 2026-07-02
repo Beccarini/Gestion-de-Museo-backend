@@ -1,0 +1,40 @@
+meta {
+  name: Create integrantes integrantes
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/integrantes
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Integrante de prueba",
+    "token": "TKN-0001",
+    "legajo": "LEG-0001",
+    "carrera": "Sistemas",
+    "esActivo": true
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("integranteId", res.body.id);
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has id", function() {
+    expect(res.body).to.have.property('id');
+  });
+}

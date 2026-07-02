@@ -1,0 +1,31 @@
+meta {
+  name: Update integrantes integrante
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseUrl}}/integrantes/{{integranteId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Integrante de prueba",
+    "token": "TKN-0001",
+    "legajo": "LEG-0001",
+    "carrera": "Ingenieria en Sistemas",
+    "esActivo": true
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

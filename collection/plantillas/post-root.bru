@@ -1,0 +1,43 @@
+meta {
+  name: Create plantillas plantillas
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/plantillas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Plantilla de prueba",
+    "descripcion": "Descripcion de plantilla",
+    "tipo": "semanal",
+    "diaSemana": 1,
+    "horaInicio": "09:00",
+    "horaFin": "11:00",
+    "frecuencia": "semanal",
+    "activo": true
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("plantillaId", res.body.id);
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has id", function() {
+    expect(res.body).to.have.property('id');
+  });
+}

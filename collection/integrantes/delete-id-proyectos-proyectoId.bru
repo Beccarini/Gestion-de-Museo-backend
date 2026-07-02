@@ -1,0 +1,23 @@
+meta {
+  name: Desvincular proyecto de integrante
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{baseUrl}}/integrantes/{{integranteId}}/proyectos/{{proyectoId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("response has msg", function() {
+    expect(res.body).to.have.property('msg');
+  });
+}

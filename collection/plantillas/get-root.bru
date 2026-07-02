@@ -1,0 +1,40 @@
+meta {
+  name: Get plantillas all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/plantillas
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+script:post-response {
+  const data = res.getBody();
+  
+  if (data && data.plantillas && data.plantillas.length > 0) {
+      bru.setEnvVar("plantillaId", data.plantillas[0].id);
+      console.log("✅ plantillaId guardado:", data.plantillas[0].id);
+      
+  } else if (data && data.data && data.data.length > 0) {
+      bru.setEnvVar("plantillaId", data.data[0].id);
+      console.log("✅ plantillaId guardado (desde data):", data.data[0].id);
+      
+  } else if (Array.isArray(data) && data.length > 0) {
+      bru.setEnvVar("plantillaId", data[0].id);
+      console.log("✅ plantillaId guardado (desde Array puro):", data[0].id);
+  } else {
+      console.log("❌ No se encontró ninguna plantilla.");
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
