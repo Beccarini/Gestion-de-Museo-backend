@@ -120,7 +120,8 @@ const getAllRegistros = async (req, res) => {
             order: [['fecha', 'DESC']], 
             include: [{ model: Integrante, as: 'integrante' }],
             limit: limite,
-            offset: offset
+            offset: offset,
+            distinct: true
         });
         const response = formatearDatosPaginados(data, pagina, limite, 'registros');
         res.status(200).json(response)
