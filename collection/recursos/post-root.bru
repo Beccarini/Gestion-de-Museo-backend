@@ -1,0 +1,39 @@
+meta {
+  name: Create recursos recursos
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/recursos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Recurso de prueba",
+    "descripcion": "Descripcion de recurso",
+    "categoria": "herramienta",
+    "stock": 10
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("recursoId", res.body.id);
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has id", function() {
+    expect(res.body).to.have.property('id');
+  });
+}

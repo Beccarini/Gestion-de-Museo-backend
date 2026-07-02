@@ -1,0 +1,40 @@
+meta {
+  name: Get eventos all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/eventos
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+script:post-response {
+  const data = res.getBody();
+  
+  if (data && data.eventos && data.eventos.length > 0) {
+      bru.setEnvVar("eventoId", data.eventos[0].id);
+      console.log("✅ eventoId guardado:", data.eventos[0].id);
+      
+  } else if (data && data.data && data.data.length > 0) {
+      bru.setEnvVar("eventoId", data.data[0].id);
+      console.log("✅ eventoId guardado (desde data):", data.data[0].id);
+      
+  } else if (Array.isArray(data) && data.length > 0) {
+      bru.setEnvVar("eventoId", data[0].id);
+      console.log("✅ eventoId guardado (desde Array puro):", data[0].id);
+  } else {
+      console.log("❌ No se encontró ningún evento.");
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

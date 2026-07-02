@@ -1,0 +1,34 @@
+meta {
+  name: Get integrantes all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/integrantes
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+script:post-response {
+  //toma la id del primer integrante de la lista para las subsecuentes requests
+  const data = res.body;
+  
+  if (data.integrantes && data.integrantes.length > 0) {
+      bru.setEnvVar("integranteId", data.integrantes[0].id);
+  } 
+  
+  else if (Array.isArray(data) && data.length > 0) {
+      bru.setEnvVar("integranteId", data[0].id);
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

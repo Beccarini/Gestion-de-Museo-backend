@@ -1,0 +1,40 @@
+meta {
+  name: Get registros all
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/registros
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+script:post-response {
+  const data = res.getBody();
+  
+  if (data && data.registros && data.registros.length > 0) {
+      bru.setEnvVar("registroId", data.registros[0].id);
+      console.log("✅ registroId guardado:", data.registros[0].id);
+      
+  } else if (data && data.data && data.data.length > 0) {
+      bru.setEnvVar("registroId", data.data[0].id);
+      console.log("✅ registroId guardado (desde data):", data.data[0].id);
+      
+  } else if (Array.isArray(data) && data.length > 0) {
+      bru.setEnvVar("registroId", data[0].id);
+      console.log("✅ registroId guardado (desde Array puro):", data[0].id);
+  } else {
+      console.log("❌ No se encontró ningún registro.");
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

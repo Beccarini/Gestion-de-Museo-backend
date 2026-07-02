@@ -1,0 +1,30 @@
+meta {
+  name: Asignar permiso a integrante
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/integrantes/{{integranteId}}/permisos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "permisoId": "{{permisoId}}"
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has msg", function() {
+    expect(res.body).to.have.property('msg');
+  });
+}

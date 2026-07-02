@@ -1,0 +1,41 @@
+meta {
+  name: Create eventos eventos
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/eventos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Evento de prueba",
+    "descripcion": "Descripcion de prueba",
+    "tipo": "reunion",
+    "fechaInicio": "2026-07-01T10:00:00.000Z",
+    "fechaFin": "2026-07-01T12:00:00.000Z",
+    "plantillaId": "{{plantillaId}}"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("eventoId", res.body.id);
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has id", function() {
+    expect(res.body).to.have.property('id');
+  });
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Update recursos recurso
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/recursos/{{recursoId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Recurso de prueba",
+    "descripcion": "Descripcion de recurso",
+    "categoria": "herramienta",
+    "stock": 10
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

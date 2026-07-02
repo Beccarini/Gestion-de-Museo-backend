@@ -1,0 +1,30 @@
+meta {
+  name: Update items item
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/items/{{itemId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "recursoId": "{{recursoId}}",
+    "cantidad": 1,
+    "estado": "disponible",
+    "proyectoId": "{{proyectoId}}"
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

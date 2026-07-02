@@ -1,0 +1,42 @@
+meta {
+  name: Create registros registros
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/registros
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "integranteId": "{{integranteId}}",
+    "eventoId": "{{eventoId}}",
+    "tokenLeido": "TKN-0001",
+    "fecha": "2026-07-01T10:05:00.000Z",
+    "esAsistencia": true,
+    "esApertura": false,
+    "mensajeError": null
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("registroId", res.body.id);
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has id", function() {
+    expect(res.body).to.have.property('id');
+  });
+}

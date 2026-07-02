@@ -1,0 +1,39 @@
+meta {
+  name: Create permisos permisos
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/permisos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "descripcion": "Permiso de acceso al laboratorio",
+    "diasSemana": "Lunes,Martes,Miercoles",
+    "horaInicio": "08:00",
+    "horaFin": "18:00"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.id) {
+    bru.setVar("permisoId", res.body.id);
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has id", function() {
+    expect(res.body).to.have.property('id');
+  });
+}

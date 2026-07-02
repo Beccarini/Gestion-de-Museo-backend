@@ -1,0 +1,23 @@
+meta {
+  name: Get permisos permiso integrantes
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/permisos/{{permisoId}}/integrantes
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("response has integrantes", function() {
+    expect(res.body).to.have.property('integrantes');
+  });
+}

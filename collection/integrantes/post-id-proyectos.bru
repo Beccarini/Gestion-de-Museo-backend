@@ -1,0 +1,30 @@
+meta {
+  name: Asignar proyecto a integrante
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/integrantes/{{integranteId}}/proyectos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "proyectoId": "{{proyectoId}}"
+  }
+}
+
+tests {
+  test("status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+  test("response has msg", function() {
+    expect(res.body).to.have.property('msg');
+  });
+}

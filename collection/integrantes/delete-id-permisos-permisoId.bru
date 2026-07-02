@@ -1,0 +1,23 @@
+meta {
+  name: Revocar permiso de integrante
+  type: http
+  seq: 13
+}
+
+delete {
+  url: {{baseUrl}}/integrantes/{{integranteId}}/permisos/{{permisoId}}
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("response has msg", function() {
+    expect(res.body).to.have.property('msg');
+  });
+}

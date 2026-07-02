@@ -1,0 +1,33 @@
+meta {
+  name: Create auth login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "admin@museo.com",
+    "password": "passwordSegura123"
+  }
+}
+
+script:post-response {
+  if (res.body && res.body.token) {
+    bru.setVar("authToken", res.body.token);
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("response has token", function() {
+    expect(res.body).to.have.property('token');
+  });
+}

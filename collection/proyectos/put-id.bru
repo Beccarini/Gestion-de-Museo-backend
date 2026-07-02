@@ -1,0 +1,31 @@
+meta {
+  name: Update proyectos proyecto
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/proyectos/{{proyectoId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Proyecto de prueba",
+    "descripcion": "Descripcion de proyecto",
+    "fechaInicio": "2026-07-01T00:00:00.000Z",
+    "fechaFin": "2026-12-01T00:00:00.000Z",
+    "estado": "activo"
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -1,0 +1,34 @@
+meta {
+  name: Update plantillas plantilla
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/plantillas/{{plantillaId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "nombre": "Plantilla de prueba",
+    "descripcion": "Descripcion de plantilla",
+    "tipo": "semanal",
+    "diaSemana": 1,
+    "horaInicio": "09:00",
+    "horaFin": "11:00",
+    "frecuencia": "semanal",
+    "activo": true
+  }
+}
+
+tests {
+  test("status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
