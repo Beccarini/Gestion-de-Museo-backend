@@ -116,7 +116,7 @@ const startServer = async () => {
       where: { descripcion: 'Turno Mañana Estándar' },
       defaults: {
         descripcion: 'Turno Mañana Estándar',
-        diasSemana: ['Lunes', 'Miércoles', 'Viernes'], // Array de ejemplo
+        diasSemana: ['Lunes', 'Miércoles', 'Viernes'], 
         horaInicio: '08:00',
         horaFin: '12:30'
       }

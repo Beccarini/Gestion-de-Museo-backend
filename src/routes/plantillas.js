@@ -1,7 +1,9 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
+const { Op } = require('sequelize');
 const { Plantilla } = require('../models');
 const { TIPOS_EVENTO, TIPOS_EVENTO_MENSAJE } = require('../constants/tiposEvento');
+const { getPaginacion, formatearDatosPaginados } = require('../utils/paginacion'); // Importamos utilidades de paginación
 
 const router = express.Router();
 
@@ -68,10 +70,31 @@ const validatePlantillaId = [
 
 const getAllPlantillas = async (req, res) => {
     try {
-        const plantillas = await Plantilla.findAll({
-            order: [['diaSemana', 'ASC'], ['horaInicio', 'ASC']]
+        const { pagina, limite, offset } = getPaginacion(req, 10);
+        const { tipo, diaSemana, frecuencia, activo } = req.query; 
+        const whereClause = {};
+        if (tipo) {
+            whereClause.tipo = tipo;
+        }
+        if (frecuencia) {
+            whereClause.frecuencia = frecuencia;
+        }
+        if (diaSemana !== undefined && diaSemana !== '') {
+            whereClause.diaSemana = parseInt(diaSemana, 10);
+        }
+        if (activo !== undefined && activo !== '') {
+            whereClause.activo = activo === 'true';
+        }
+        const data = await Plantilla.findAndCountAll({
+            where: whereClause,
+            order: [['diaSemana', 'ASC'], ['horaInicio', 'ASC']],
+            limit: limite,
+            offset: offset,
+            distinct: true 
         });
-        res.status(200).json(plantillas);
+        const resultado = formatearDatosPaginados(data, pagina, limite, 'plantillas');
+        console.log('RESULTADO BACKEND:', Object.keys(resultado));
+        res.status(200).json(resultado);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener las plantillas de horarios' });
