@@ -107,16 +107,15 @@ const getAllEventos = async (req, res) => {
                 [Op.between]: [inicioDia, finDia]
             };
         }
-
         const eventos = await Evento.findAll({
             where: eventosWhere,
             order: [['fechaInicio', 'ASC']] 
         });
         res.status(200).json(eventos)
     } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Error al obtener los eventos' })
-  }
+        console.error(error)
+        res.status(500).json({ error: 'Error al obtener los eventos' })
+    }
 }
 
 const getEventoById = async (req, res) => {
