@@ -197,7 +197,7 @@ const addRegistro = async (req, res) => {
 
     return res.status(201).json(nuevoRegistro);
   } catch (error) {
-    console.error('Error al registrar evento desde ESP32:', error);
+    console.error('Error al registrar evento desde escaner:', error);
     return res.status(500).json({ error: 'Error interno al procesar el log' });
   }
 };

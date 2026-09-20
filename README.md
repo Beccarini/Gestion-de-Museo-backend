@@ -202,7 +202,7 @@ Prefijo base: `/api` (montado en `app.js`). Todas las rutas listadas abajo requi
 |---|---|---|
 | GET | `/` | Lista registros paginada. Filtros opcionales: `fechaInicio`, `fechaFin`, `esApertura`, `esAsistencia`. Incluye el integrante asociado |
 | GET | `/:id` | Obtiene un registro por ID, incluyendo su integrante asociado |
-| POST | `/` | Crea un registro de acceso/asistencia (`tokenLeido`, `fecha` obligatorios; `integranteId`, `eventoId`, `esAsistencia`, `esApertura` opcionales). Pensado para ser consumido por el lector físico (ESP32) |
+| POST | `/` | Crea un registro de acceso/asistencia (`tokenLeido`, `fecha` obligatorios; `integranteId`, `eventoId`, `esAsistencia`, `esApertura` opcionales). Pensado para ser consumido por el lector físico (escaner) |
 | DELETE | `/:id` | Elimina un registro |
 
 ## 📁 Estructura del Proyecto
