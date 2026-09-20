@@ -1,6 +1,6 @@
 const express = require('express');
 const escanerAuth = require('../middlewares/escanerAuth');
-const { Integrante, Permiso } = require('../models');
+const { Integrante, Permiso, Evento, Registro } = require('../models');
 const { Op } = require('sequelize');
 
 
@@ -48,12 +48,65 @@ const getDatosDeAccesoEscaner = async (req, res) => {
 
 const registrarLoteAccesos = async (req, res) => {
     try {
-  
+        const { lecturas } = req.body;
 
-        res.status(201).json({ msg: 'Endpoint POST de registros funcionando (Protegido)' });
+        if (!Array.isArray(lecturas)) {
+            return res.status(400).json({ error: 'El formato esperado es un array en la propiedad de "lecturas"'});
+        }
+
+        const registrosCreados = [];
+
+        for (const lectura of lecturas) {
+            const { tokenLeido, fecha, esApertura } = lectura;
+            const fechaLectura = new Date(fecha);
+
+            if (!tokenLeido) {
+                const nuevoRegistro = await Registro.create({
+                    integranteId: null,
+                    eentoId:null,
+                    tokenLeido: 'DESCONOCIDO',
+                    fecha: fechaLectura,
+                    esAsistencia: false,
+                    esApertura: esApertura || false,
+                    mensajeError: esApertura
+                        ? 'Error de firmware: Apertura ejecutada con tarjeta no registrada'
+                        : 'Acceso denegado: Tarjeta no registrada'
+                });
+                registrosCreados.push(nuevoRegistro);
+                continue;
+            }
+
+            const integrante = await Integrante.findOne({
+                where: {token: tokenLeido, esActivo: true},
+                attributes: ['id']
+            });
+
+            if (!integrante) continue;
+
+            const eventoActual = await Evento.findOne({
+                where: {
+                    fechaInicio: { [Op.lte]: fechaLectura },
+                    fechaFin: { [Op.gte]: fechaLectura }
+                },
+                attributes: ['id']
+            });
+
+            const nuevoRegistro = await Registro.create({
+                integranteId: integrante.id,
+                eventoId: eventoActual ? eventoActual.id : null,
+                tokenLeido,
+                fecha: fechaLectura,
+                esAsistencia: eventoActual ? true : false,
+                esApertura: esApertura || false,
+                mensajeError: !esApertura ? 'Acceso denegado por hardware (Fuera de horario permitido)' : null
+            });
+            registrosCreados.push(nuevoRegistro);
+
+        }
+        res.status(201).json({ msg: `Lote procesado. Se guardaron ${registrosCreados.length} registros.` });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error interno al procesar el lote de registros' });
+        console.error('Error al procesar lote del escáner:', error);
+        res.status(500).json({ error: 'Error interno al procesar el lote de lecturas' });
     }
 };
 
