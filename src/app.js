@@ -14,6 +14,7 @@ const { sequelize, Usuario, Integrante, Registro, Recurso, Item, Cambio, Evento,
 const authRouter = require('./routes/auth');
 const { iniciarCronEventos } = require('./services/cronService');
 const authMiddleware = require('./middlewares/auth');
+const escanerRouter = require('./routes/escaner');
 const app = express();
 
 
@@ -32,6 +33,7 @@ app.use('/api/eventos', authMiddleware, eventosRouter);
 app.use('/api/plantillas', authMiddleware, plantillasRouter);
 app.use('/api/permisos', authMiddleware, permisosRouter);
 app.use('/api/proyectos', authMiddleware, proyectosRouter);
+app.use('/api/escaner', escanerRouter);
 
 const startServer = async () => {
   try {
