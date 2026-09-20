@@ -36,7 +36,7 @@ const getDatosDeAccesoEscaner = async (req, res) => {
 
 
         res.status(200).json({
-            fechaHoraServidod: new Date().toISOString(),
+            fechaHoraServidor: new Date().toISOString(),
             integrantes: integrantesLigeros
         });
     } catch (error) {
