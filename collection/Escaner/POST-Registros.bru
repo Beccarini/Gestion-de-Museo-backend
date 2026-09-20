@@ -1,0 +1,28 @@
+meta {
+  name: Enviar Lote de Lecturas
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/escaner/registros
+  body: json
+  auth: none
+}
+
+headers {
+  x-api-key: {{escanerApiKey}}
+}
+
+body:json {
+  {
+    "lecturas": [
+      { "tokenLeido": "A1B2C3D4", "fecha": "2026-09-20T14:30:00.000Z", "esApertura": true },
+      { "tokenLeido": null, "fecha": "2026-09-20T15:00:00.000Z", "esApertura": false }
+    ]
+  }
+}
+
+vars:pre-request {
+  escanerApiKey: clave_secreta_no_la_leakeen_pls_escaner_muic_2026
+}
