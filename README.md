@@ -36,6 +36,9 @@ Expone una API REST para administrar integrantes, proyectos, eventos, plantillas
 
    # Entorno de ejecución (development, production o test)
    NODE_ENV=development
+
+   # API key compartida con el hardware del escáner
+   ESCANER_API_KEY=una_clave_muy_segura_para_el_escaner
    ```
 
    > En `NODE_ENV=test` la base de datos SQLite se levanta en memoria (`:memory:`); en cualquier otro caso se persiste en `database.sqlite` en la raíz del proyecto.
@@ -93,13 +96,30 @@ Campos principales por modelo (según validadores y modelos revisados):
   app.use('/api/plantillas', authMiddleware, plantillasRouter);   // protegida
   app.use('/api/permisos', authMiddleware, permisosRouter);       // protegida
   app.use('/api/proyectos', authMiddleware, proyectosRouter);     // protegida
+  app.use('/api/escaner', escanerRouter);                         // protegida con API key del hardware
   ```
 
 * Usuario administrador semilla (se crea automáticamente al levantar el servidor si no existe): `admin@museo.com` / `passwordSegura123`.
 
+### 🔑 Autenticación del escáner
+
+Los endpoints del hardware no usan JWT sino una API key compartida por cabecera HTTP:
+
+```http
+x-api-key: <ESCANER_API_KEY>
+```
+
+La validación la hace `src/middlewares/escanerAuth.js`. Si la clave falta o no coincide con `process.env.ESCANER_API_KEY`, el backend responde `401` con:
+
+```json
+{ "error": "Acceso denegado. API Key de hardware inválida o faltante." }
+```
+
+> Importante: `ESCANER_API_KEY` debe configurarse en el `.env` del backend y coincidir exactamente con la clave que usa el dispositivo lector.
+
 ## 📌 Endpoints
 
-Prefijo base: `/api` (montado en `app.js`). Todas las rutas listadas abajo requieren el header `Authorization: Bearer <token>`, excepto las de `/api/auth`.
+Prefijo base: `/api` (montado en `app.js`). Todas las rutas de la API web requieren el header `Authorization: Bearer <token>`, excepto `/api/auth` y los endpoints del hardware en `/api/escaner`.
 
 ### Auth — `/api/auth`
 
@@ -195,6 +215,70 @@ Prefijo base: `/api` (montado en `app.js`). Todas las rutas listadas abajo requi
 | POST | `/` | Crea un item (`recursoId`, `cantidad`, `estado` obligatorios; el `recursoId` debe existir) |
 | PUT | `/:id` | Actualiza un item |
 | DELETE | `/:id` | Elimina un item |
+
+### Escáner — `/api/escaner`
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/sync` | Sincroniza la lista de integrantes activos con sus permisos. Se usa para cargar datos de acceso en el equipo del escáner. Requiere `x-api-key` |
+| POST | `/registros` | Recibe un lote de lecturas del hardware para registrar accesos/asistencias. Requiere `x-api-key` |
+
+#### GET `/api/escaner/sync`
+
+Respuesta esperada:
+
+```json
+{
+  "fechaHoraServidor": "2026-09-20T12:00:00.000Z",
+  "integrantes": [
+    {
+      "token": "A1B2C3D4",
+      "permisos": [
+        {
+          "diaSemana": ["Lunes", "Miércoles", "Viernes"],
+          "horaInicio": "08:00",
+          "horaFin": "12:30"
+        }
+      ]
+    }
+  ]
+}
+```
+
+- Solo incluye integrantes activos y con `token` distinto de `null`.
+- Cada permiso se devuelve como un objeto con `diaSemana`, `horaInicio` y `horaFin`.
+
+#### POST `/api/escaner/registros`
+
+Body esperado:
+
+```json
+{
+  "lecturas": [
+    {
+      "tokenLeido": "A1B2C3D4",
+      "fecha": "2026-09-20T08:15:00.000Z",
+      "esApertura": false
+    },
+    {
+      "tokenLeido": "DESCONOCIDO",
+      "fecha": "2026-09-20T08:16:00.000Z",
+      "esApertura": true
+    }
+  ]
+}
+```
+
+Reglas de procesamiento:
+
+- `lecturas` debe ser un array.
+- Si el `tokenLeido` no existe o no está activo, se guarda un registro con `integranteId: null`, `tokenLeido: "DESCONOCIDO"` y `mensajeError` de acceso denegado.
+- Si el token pertenece a un integrante activo, se intenta asociar el evento vigente en la fecha de lectura para marcar `esAsistencia`.
+- La respuesta es un mensaje resumido:
+
+```json
+{ "msg": "Lote procesado. Se guardaron 2 registros." }
+```
 
 ### Registros — `/api/registros`
 
