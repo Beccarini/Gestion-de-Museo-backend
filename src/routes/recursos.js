@@ -33,7 +33,7 @@ const validateRecursoId = [
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() })
-        }
+        };
         next();
     }
 ];
@@ -43,7 +43,7 @@ const getRecursoById=async(req,res)=>{
         const recurso=await Recurso.findByPk(id);
         if(!recurso){
             return res.status(404).json({message:'Recurso no encontrado'});
-        }
+        };
         res.status(200).json(recurso);
     }catch(error){
         console.error(error);
@@ -61,7 +61,12 @@ const getAllRecursos=async(req,res)=>{
             };
         };
         if(categoria){
-            whereRecurso.categoria=categoria;
+            whereRecurso.categoria={
+                [Op.like]: `%${categoria}%`
+            }
+        };
+        if(stock){
+            whereRecurso.stock=stock;
         };
         const data = await Recurso.findAndCountAll({
             where: whereRecurso,
@@ -106,7 +111,7 @@ const updateRecurso=async(req,res)=>{
         return res.status(200).json(recurso);
     }catch(error){
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener el recurso'});
+        res.status(500).json({ error: 'Error al actualizar el recurso'});
     }
 }
 const deleteRecurso=async(req,res)=>{
@@ -119,7 +124,7 @@ const deleteRecurso=async(req,res)=>{
         return res.status(204).json(recurso);
     }catch(error){
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener el recurso'});
+        res.status(500).json({ error: 'El recurso no pudo ser eliminado'});
     }
 }
 router.get('/',getAllRecursos);

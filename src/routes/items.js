@@ -131,7 +131,7 @@ const deleteItem = async (req, res) => {
     }
 };
 
-// ✅ Orden correcto: específica antes que paramétrica
+
 router.get('/', getAllItems);
 router.get('/recursos/:recursoId', validateRecursoId, getItemsByRecurso);
 router.get('/:id', validateItemID, getItemById);

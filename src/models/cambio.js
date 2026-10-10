@@ -20,6 +20,10 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'Razón génerica'
+    },
+    recursoId: {
+      type: DataTypes.UUID,
+      allowNull: true 
     }
   }, {
     timestamps: true, 
